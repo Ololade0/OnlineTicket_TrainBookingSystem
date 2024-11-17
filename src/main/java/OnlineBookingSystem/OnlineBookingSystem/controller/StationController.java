@@ -1,10 +1,9 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.SignUpUserResponse;
+import OnlineBookingSystem.OnlineBookingSystem.model.Station;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
-import OnlineBookingSystem.OnlineBookingSystem.model.enums.RoleType;
-import OnlineBookingSystem.OnlineBookingSystem.service.UserService;
-
+import OnlineBookingSystem.OnlineBookingSystem.service.StationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,18 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/user/")
+@RequestMapping("/api/v1/station")
 @RequiredArgsConstructor
-public class UserController {
+public class StationController {
+    private final StationService stationService;
 
-    private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User signUpUser){
-        SignUpUserResponse registeredUser = userService.signUp(signUpUser);
-        log.info("Incoming user payload: {}", registeredUser);
 
-        return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+    @PostMapping("/create-station")
+    public ResponseEntity<?> createStation(@RequestBody Station createNewStation){
+        Station newStation= stationService.createNewStation(createNewStation);
+
+        return new ResponseEntity<>(newStation, HttpStatus.CREATED);
     }
-
 }
