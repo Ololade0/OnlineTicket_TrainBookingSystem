@@ -24,7 +24,7 @@ public class StationServiceImpl implements StationService{
     }
     private void verifyStationCode(String stationCode) {
         if (stationRepository.existsByStationCode(stationCode)) {
-            throw new StationAlreadyExistException("St                                                                                                                                                                                                                                                                                                                                          ation with code " + stationCode + " already exist");
+            throw new StationAlreadyExistException("Station with code " + stationCode + " already exist");
 
         }
 
