@@ -1,17 +1,19 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.SignUpUserResponse;
+import OnlineBookingSystem.OnlineBookingSystem.dto.response.request.TrainClassDto;
 import OnlineBookingSystem.OnlineBookingSystem.model.Station;
+import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import OnlineBookingSystem.OnlineBookingSystem.service.StationService;
+import OnlineBookingSystem.OnlineBookingSystem.service.TrainClassService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -20,12 +22,30 @@ import org.springframework.web.bind.annotation.RestController;
 public class StationController {
     private final StationService stationService;
 
+    private final TrainClassService trainClassService;
+
 
 
     @PostMapping("/create-station")
     public ResponseEntity<?> createStation(@RequestBody Station createNewStation){
         Station newStation= stationService.createNewStation(createNewStation);
-
         return new ResponseEntity<>(newStation, HttpStatus.CREATED);
     }
+    @GetMapping("/{stationId}")
+    public ResponseEntity<?>findStationById(@PathVariable Long stationId){
+        Station foundStation = stationService.findStationById(stationId);
+        return new ResponseEntity<>(foundStation, HttpStatus.OK);
+    }
+
+    @PutMapping("/{stationId}")
+    public ResponseEntity<?> updateStationById(@PathVariable Long stationId, @RequestBody Station station) {
+        if (station == null) {
+            return new ResponseEntity<>("Station details cannot be null", HttpStatus.BAD_REQUEST);
+        }
+        Station updatedStation = stationService.updateStation(station, stationId);
+        return new ResponseEntity<>(updatedStation, HttpStatus.ACCEPTED);
+    }
+
+
+
 }

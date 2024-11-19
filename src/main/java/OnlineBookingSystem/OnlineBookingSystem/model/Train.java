@@ -12,7 +12,7 @@ import java.util.List;
 @Entity(name = "trains")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Train {
+public class Train extends AuditBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

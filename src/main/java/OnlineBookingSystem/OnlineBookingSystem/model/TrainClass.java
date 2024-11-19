@@ -22,11 +22,13 @@ public class TrainClass {
     @Embedded
     private Fare fare;
 
-    @ManyToOne
-    @JoinColumn(name = "train_id", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "train_id", nullable = true)
     private Train train;
 
-    @OneToMany(mappedBy = "trainClass", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "trainClass", cascade   = {
+            CascadeType.PERSIST, CascadeType.REMOVE
+    })
     private List<Seat> seats;
 
     // Getters and setters

@@ -1,6 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
 
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.SeatStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,18 +17,18 @@ public class Seat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String seatNumber;
-    private String status;
+    private int seatNumber;
+    @Embedded
+    private SeatStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "train_class_id", nullable = false)
+    @JoinColumn(name = "train_class_id")
     private TrainClass trainClass;
 
     @ManyToOne
     @JoinColumn(name = "booking_id")
     private Booking booking;
 
-    // Getters and setters
 }
 
 

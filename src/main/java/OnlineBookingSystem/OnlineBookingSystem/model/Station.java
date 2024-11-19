@@ -11,7 +11,7 @@ import java.util.List;@Setter
 @Entity(name = "stations")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Station {
+public class Station extends AuditBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long stationId;
@@ -20,6 +20,7 @@ public class Station {
 
     @NotBlank(message = "Station Code cannot be blank")
     private String stationCode;
+
 
     @ManyToMany(mappedBy = "stations")
     private List<Schedule> schedules;
