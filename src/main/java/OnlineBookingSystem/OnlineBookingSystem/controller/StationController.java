@@ -1,10 +1,6 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.SignUpUserResponse;
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.request.TrainClassDto;
 import OnlineBookingSystem.OnlineBookingSystem.model.Station;
-import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
-import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import OnlineBookingSystem.OnlineBookingSystem.service.StationService;
 import OnlineBookingSystem.OnlineBookingSystem.service.TrainClassService;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @Slf4j

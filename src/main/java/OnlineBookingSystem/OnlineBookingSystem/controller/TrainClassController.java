@@ -1,17 +1,11 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.request.GenerateSeatDTO;
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.request.TrainClassRequest;
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.request.TrainClassSaveRequest;
 import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
 import OnlineBookingSystem.OnlineBookingSystem.service.TrainClassService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/trainsclass")
@@ -24,11 +18,11 @@ public class TrainClassController {
 //
     @PostMapping("/train-classes")
     public ResponseEntity<?> saveTrainClasses(
-            @RequestBody List<TrainClassRequest> trainClassRequests,
+            @RequestBody TrainClass trainClass,
             @RequestParam int startSeat,
             @RequestParam int endSeat
             ) {
-        List<TrainClass> trainClasses = trainClassService.saveTrainClasses(trainClassRequests, startSeat, endSeat);
+        TrainClass trainClasses = trainClassService.saveTrainClasses(trainClass, startSeat, endSeat);
         return ResponseEntity.ok(trainClasses);
     }
 

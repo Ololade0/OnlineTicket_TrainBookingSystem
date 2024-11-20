@@ -16,7 +16,7 @@ import java.util.Set;
 @Entity(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User extends AuditBaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

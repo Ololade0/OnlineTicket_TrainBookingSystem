@@ -8,8 +8,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class TrainClassRequest {
-
-//    private Long trainClassId;
     private String className;
 
     private Fare fare;
