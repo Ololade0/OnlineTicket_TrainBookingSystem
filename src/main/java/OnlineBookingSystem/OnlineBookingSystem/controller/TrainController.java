@@ -23,7 +23,6 @@ public class TrainController {
     @PostMapping("/create")
     public ResponseEntity<?> createTrain(@RequestBody AddTrainClassToTrainDTO addTrainClassToTrainDTO) {
         Train createTrain = trainService.createNewTrains(addTrainClassToTrainDTO);
-
         return new ResponseEntity<>(createTrain, HttpStatus.CREATED);
     }
 

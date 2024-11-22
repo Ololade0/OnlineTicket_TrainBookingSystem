@@ -1,12 +1,12 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Setter
 @Getter
@@ -21,20 +21,18 @@ public class TrainClass {
     private Long trainClassId;
 
     private String className;
+
     @Embedded
     private Fare fare;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "train_id", nullable = true)
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "train_id")
     private Train train;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "trainClass", cascade   = {
-            CascadeType.PERSIST, CascadeType.REMOVE
-    })
+    @OneToMany(mappedBy = "trainClass", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Seat> seats = new ArrayList<>();
 
     private int totalSeat;
-
 }
-

@@ -9,8 +9,8 @@ import lombok.Setter;
 @Getter
 public class AddTrainClassToTrainDTO {
 //    public Long trainId;
-    private TrainClass trainClass;
-//    private Train train;
+   private TrainClass trainClass;
+   private Train train;
     private String className;
     private int startSeat;
     private int endSeat;
