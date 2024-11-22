@@ -34,6 +34,18 @@ public class StationServiceImpl implements StationService {
                 .orElseThrow(() -> new StationCannotBeFoundException("Station with ID " + stationId + " cannot be found"));
     }
 
+    @Override
+    public Station findStationByName(String stationName) {
+        return (stationRepository.findByStationName(stationName).orElseThrow(()
+                -> new StationCannotBeFoundException("Station with Name " + stationName + " cannot be found")));
+    }
+
+//    @Override
+//    public Station findStationByName(String stationName) {
+//        return (stationRepository.findStationByStationName(stationName).orElseThrow(()
+//                -> new StationCannotBeFoundException("Station with Name " + stationName + " cannot be found")));
+//    }
+
 
     @Transactional
     public Station updateStation(Station station, Long stationId) {

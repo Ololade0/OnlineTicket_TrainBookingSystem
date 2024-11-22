@@ -1,9 +1,15 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
 
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.ScheduleType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 @Setter
 @Getter
@@ -12,16 +18,26 @@ import java.util.List;
 @Entity(name = "schedules")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Schedule {
+public class Schedule extends AuditBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String departureTime;
-    private String arrivalTime;
+    private LocalTime departureTime;
+    private LocalTime arrivalTime;
 
+    private LocalDate departureDate;
+
+    private LocalDate arrivalDate;
+    private Duration duration;
+    @Enumerated(EnumType.STRING)
+    private ScheduleType scheduleType;
+
+
+
+    @JsonBackReference  // Prevents recursion when serializing Train object
     @ManyToOne
-    @JoinColumn(name = "train_id", nullable = false)
+    @JoinColumn(name = "train_id")
     private Train train;
 
     @ManyToMany
