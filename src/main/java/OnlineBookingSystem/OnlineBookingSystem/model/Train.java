@@ -3,6 +3,7 @@ package OnlineBookingSystem.OnlineBookingSystem.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -19,8 +20,8 @@ public class Train extends AuditBaseEntity {
 
     private String name;
 
-    @OneToMany(mappedBy = "train", cascade = CascadeType.ALL)
-    private List<TrainClass> trainClasses;
+    @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<TrainClass> trainClasses = new ArrayList<>();
 
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL)
     private List<Schedule> schedules;

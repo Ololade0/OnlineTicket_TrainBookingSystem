@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TrainServiceRepository extends JpaRepository<Train, Long> {
+public interface TrainRepository extends JpaRepository<Train, Long> {
 }

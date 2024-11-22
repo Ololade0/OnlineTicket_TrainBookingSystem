@@ -22,7 +22,6 @@ public abstract class AuditBaseEntity {
     @PrePersist
     protected void  onCreate(){
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
     }
 
     protected  void onUpdate(){

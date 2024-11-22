@@ -15,10 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
     private final SeatRepository seatRepository;
-
-
-
-
     public List<Seat> generateSeats(int startSeat, int endSeat, TrainClass trainClass) {
         List<Seat> seats = new ArrayList<>();
         for (int i = startSeat; i <= endSeat; i++) {

@@ -36,6 +36,5 @@ public class TrainClass {
 
     private int totalSeat;
 
-    // Getters and setters
 }
 
