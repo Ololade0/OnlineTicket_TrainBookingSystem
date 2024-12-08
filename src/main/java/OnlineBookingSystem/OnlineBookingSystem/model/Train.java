@@ -25,11 +25,10 @@ public class Train extends AuditBaseEntity {
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<TrainClass> trainClasses = new ArrayList<>();
 
-    @JsonManagedReference  // Added here to prevent recursion on Schedules
+    @JsonManagedReference
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Schedule> schedules;
 
-    // Helper method to manage bidirectional relationship
     public void addTrainClass(TrainClass trainClass) {
         if (trainClasses == null) {
             trainClasses = new ArrayList<>();

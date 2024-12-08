@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/station")
@@ -31,13 +33,18 @@ public class StationController {
         return new ResponseEntity<>(foundStation, HttpStatus.OK);
     }
 
-    @PutMapping("/{stationId}")
+    @PutMapping("update/{stationId}")
     public ResponseEntity<?> updateStationById(@PathVariable Long stationId, @RequestBody Station station) {
         if (station == null) {
             return new ResponseEntity<>("Station details cannot be null", HttpStatus.BAD_REQUEST);
         }
         Station updatedStation = stationService.updateStation(station, stationId);
         return new ResponseEntity<>(updatedStation, HttpStatus.ACCEPTED);
+    }
+    @GetMapping("/find-all")
+    public ResponseEntity<?>findAllStation(){
+      List<Station> findAllStation =  stationService.findAllStation();
+        return new ResponseEntity<>(findAllStation, HttpStatus.OK);
     }
 
 

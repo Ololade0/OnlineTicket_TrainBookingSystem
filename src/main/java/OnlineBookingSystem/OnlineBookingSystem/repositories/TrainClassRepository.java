@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TrainClassRepository extends JpaRepository<TrainClass, Long> {
+
+
+
 }

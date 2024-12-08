@@ -1,6 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
 
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.Route;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.ScheduleType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -30,8 +31,15 @@ public class Schedule extends AuditBaseEntity {
 
     private LocalDate arrivalDate;
     private Duration duration;
+
     @Enumerated(EnumType.STRING)
     private ScheduleType scheduleType;
+
+    @Enumerated(EnumType.STRING)
+    private Route route;
+
+    @Embedded
+    private Fare fare;
 
 
 

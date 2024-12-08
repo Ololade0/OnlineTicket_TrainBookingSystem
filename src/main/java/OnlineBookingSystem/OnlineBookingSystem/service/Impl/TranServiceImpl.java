@@ -31,21 +31,24 @@ public class TranServiceImpl implements TrainService {
                     .name(addTrainClassToTrainDTO.getClassName())
                     .build();
             Train savedTrain = trainRepository.save(newTrain);
-
-            TrainClass savedTrainClass = trainClassService.saveTrainClasses(
-                     savedTrain,
-                    addTrainClassToTrainDTO.getTrainClass(),
-                    addTrainClassToTrainDTO.getStartSeat(),
-                    addTrainClassToTrainDTO.getEndSeat()
-            );
-            if (savedTrain.getTrainClasses() == null) {
-                savedTrain.setTrainClasses(new ArrayList<>());
-            }
-            savedTrain.getTrainClasses().add(savedTrainClass);
-            return trainRepository.save(newTrain);
+            return addTrainClassToTrain(addTrainClassToTrainDTO, newTrain, savedTrain);
         }
 
-        @Override
+    private Train addTrainClassToTrain(AddTrainClassToTrainDTO addTrainClassToTrainDTO, Train newTrain, Train savedTrain) {
+        TrainClass savedTrainClass = trainClassService.saveTrainClasses(
+                savedTrain,
+                addTrainClassToTrainDTO.getTrainClass(),
+                addTrainClassToTrainDTO.getStartSeat(),
+                addTrainClassToTrainDTO.getEndSeat()
+        );
+        if (savedTrain.getTrainClasses() == null) {
+            savedTrain.setTrainClasses(new ArrayList<>());
+        }
+        savedTrain.getTrainClasses().add(savedTrainClass);
+        return trainRepository.save(newTrain);
+    }
+
+    @Override
         public Train findTrainById(Long trainId) {
             return trainRepository.findById(trainId)
                     .orElseThrow(() -> new TrainCannotBeFoundException("Train with ID " + trainId + " cannot be found"));

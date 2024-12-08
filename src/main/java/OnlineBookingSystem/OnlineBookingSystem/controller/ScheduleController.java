@@ -1,6 +1,9 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
+import OnlineBookingSystem.OnlineBookingSystem.dto.response.ScheduleResponse;
+import OnlineBookingSystem.OnlineBookingSystem.dto.response.request.FindScheduleDTO;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidScheduleException;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.ScheduleCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.ScheduleDetailsException;
 import OnlineBookingSystem.OnlineBookingSystem.model.Schedule;
 import OnlineBookingSystem.OnlineBookingSystem.service.ScheduleService;
@@ -28,10 +31,17 @@ public class ScheduleController {
             } catch (InvalidScheduleException | ScheduleDetailsException e) {
                 throw new RuntimeException(e);
             }
-
-
         }
 
+    @PostMapping("/find")
+    public ResponseEntity<?> findSchedule(@RequestBody FindScheduleDTO findScheduleDTO) {
+        try {
+            ScheduleResponse scheduleResponse = scheduleService.findSchedule(findScheduleDTO);
+            return ResponseEntity.ok(scheduleResponse);
+        } catch (ScheduleCannotBeFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
     }
 

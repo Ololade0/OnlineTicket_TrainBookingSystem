@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -19,8 +20,7 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public Station createNewStation(Station newStation) {
-        verifyStationName(newStation.getStationName());
-        verifyStationCode(newStation.getStationCode());
+        verifyStation(newStation.getStationName(), newStation.getStationCode());
         Station station = Station.builder()
                 .stationCode(newStation.getStationCode())
                 .stationName(newStation.getStationName())
@@ -35,16 +35,10 @@ public class StationServiceImpl implements StationService {
     }
 
     @Override
-    public Station findStationByName(String stationName) {
-        return (stationRepository.findByStationName(stationName).orElseThrow(()
-                -> new StationCannotBeFoundException("Station with Name " + stationName + " cannot be found")));
+    public Optional<Station> findStationByName(String stationName) {
+        return Optional.ofNullable((stationRepository.findByStationName(stationName).orElseThrow(()
+                -> new StationCannotBeFoundException("Station with Name " + stationName + " cannot be found"))));
     }
-
-//    @Override
-//    public Station findStationByName(String stationName) {
-//        return (stationRepository.findStationByStationName(stationName).orElseThrow(()
-//                -> new StationCannotBeFoundException("Station with Name " + stationName + " cannot be found")));
-//    }
 
 
     @Transactional
@@ -59,20 +53,19 @@ public class StationServiceImpl implements StationService {
         throw new StationCannotBeFoundException("Station with ID " + stationId + " cannot be found");
     }
 
-
-    private void verifyStationCode(String stationCode) {
-        if (stationRepository.existsByStationCode(stationCode)) {
-            throw new StationAlreadyExistException("Station with code " + stationCode + " already exist");
-
-        }
-
+    @Override
+    public List<Station> findAllStation() {
+        return stationRepository.findAll();
     }
 
 
-    private void verifyStationName(String station){
-            if(stationRepository.existsByStationName(station)){
-                throw new StationAlreadyExistException("Station with name " + station + " already exist");
-            }
+    private void verifyStation(String stationCode, String stationName) {
+        if (stationRepository.existsByStationCode(stationCode)) {
+            throw new StationAlreadyExistException("Station with code " + stationCode + " already exists");
+        }
+        if (stationRepository.existsByStationName(stationName)) {
+            throw new StationAlreadyExistException("Station with name " + stationName + " already exists");
+        }
 
 
 
