@@ -49,7 +49,6 @@ public class ScheduleServiceImplementation implements ScheduleService {
 
         Train train = trainService.findTrainById(trainId);
 //        validateScheduleInputs(date,train,scheduleList);
-
         TrainTimetable(date, scheduleList, train);
 
         if (scheduleList.isEmpty()) {
@@ -222,6 +221,38 @@ public class ScheduleServiceImplementation implements ScheduleService {
 
         return foundSchedule;
     }
+
+    @Override
+    public List<Schedule> findAllSchedule() {
+        return scheduleRepository.findAll();
+    }
+// Ensure this import is present
+
+//    public List<TimetableResponse> timetableForMovt() {
+//        List<Schedule> schedules = scheduleRepository.findAll(); // Adjust this method to fetch all schedules
+//        List<TimetableResponse> timetableResponses = new ArrayList<>();
+//
+//        for (int i = 0; i < schedules.size(); i++) {
+//            Schedule schedule = schedules.get(i);
+//            TimetableResponse response = new TimetableResponse(
+//                    i + 1,
+//                    schedule.getStations().toString(), // Assuming you have getCode() method in Station
+////                    schedule.getDepartureStation().getName(),
+//                    schedule.getArrivalTime(),
+//                    schedule.getDepartureTime()
+////                    calculateDistance(schedule.getDepartureStation(), schedule.getArrivalStation()) // Implement this method
+//            );
+//            timetableResponses.add(response);
+//        }
+//
+//        return timetableResponses;
+//    }
+//
+//    // Method to calculate distance (You need to implement this based on your logic)
+//    private double calculateDistance(Station departureStation, Station arrivalStation) {
+//        // Logic to calculate distance between departure and arrival stations
+//        return 0; // Replace with actual distance
+//    }
 
 }
 

@@ -7,6 +7,7 @@ import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidScheduleExcepti
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.ScheduleCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.ScheduleDetailsException;
 import OnlineBookingSystem.OnlineBookingSystem.model.Schedule;
+import OnlineBookingSystem.OnlineBookingSystem.service.Impl.TimetableResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,4 +19,6 @@ public interface ScheduleService {
 
       Schedule updateSchedule(UpdateScheduleDto updateScheduleDto);
 
+    List<Schedule> findAllSchedule();
+//    List<TimetableResponse> timetableForMovt();
 }

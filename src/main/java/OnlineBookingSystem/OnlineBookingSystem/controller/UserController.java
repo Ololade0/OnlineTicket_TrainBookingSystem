@@ -4,6 +4,7 @@ import OnlineBookingSystem.OnlineBookingSystem.dto.response.SignUpUserResponse;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import OnlineBookingSystem.OnlineBookingSystem.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User signUpUser){
+    public ResponseEntity<?> registerUser(@Valid  @RequestBody User signUpUser){
         SignUpUserResponse registeredUser = userService.signUp(signUpUser);
         log.info("Incoming user payload: {}", registeredUser);
 

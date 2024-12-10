@@ -26,6 +26,7 @@ public class TrainController {
         return new ResponseEntity<>(createTrain, HttpStatus.CREATED);
     }
 
+
     @GetMapping("/{trainId}")
     public ResponseEntity<?> findTrainById(@PathVariable Long trainId) {
         Train findTrain = trainService.findTrainById(trainId);
