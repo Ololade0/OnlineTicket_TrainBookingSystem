@@ -4,6 +4,9 @@ package OnlineBookingSystem.OnlineBookingSystem.model;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.Route;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.ScheduleType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.DurationSerializer;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,14 +26,18 @@ public class Schedule extends AuditBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @JsonFormat(pattern = "HH:mm:ss")
 
     private LocalTime departureTime;
+    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime arrivalTime;
-
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate departureDate;
-
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate arrivalDate;
+    @JsonSerialize(using = DurationSerializer.class)
     private Duration duration;
+    private String distance;
 
     @Enumerated(EnumType.STRING)
     private ScheduleType scheduleType;
@@ -56,6 +63,5 @@ public class Schedule extends AuditBaseEntity {
     )
     private List<Station> stations;
 
-    // Getters and setters
 }
 

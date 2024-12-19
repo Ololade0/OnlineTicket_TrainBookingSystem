@@ -6,6 +6,7 @@ import OnlineBookingSystem.OnlineBookingSystem.model.Train;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.Route;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.ScheduleType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +22,9 @@ public class CreateScheduleDTO {
     private String departureStationName;
     private Long trainClassId;
     private Long trainId;
+
     private LocalTime departureTime;
+
     private LocalTime arrivalTime;
 
     private LocalDate departureDate;

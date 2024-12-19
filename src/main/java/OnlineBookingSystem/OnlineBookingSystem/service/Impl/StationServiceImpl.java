@@ -40,6 +40,14 @@ public class StationServiceImpl implements StationService {
                 -> new StationCannotBeFoundException("Station with Name " + stationName + " cannot be found"))));
     }
 
+//    Optional<Station> findStationByName(String name) {
+//        List<Station> stations = stationRepository.findByName(name);
+//        if (stations.size() > 1) {
+//            throw new IllegalStateException("Multiple stations found with the name: " + name);
+//        }
+//        return stations.stream().findFirst();
+//    }
+
 
     @Transactional
     public Station updateStation(Station station, Long stationId) {
