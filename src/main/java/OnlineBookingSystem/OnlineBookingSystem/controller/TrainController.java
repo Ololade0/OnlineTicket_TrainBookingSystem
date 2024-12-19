@@ -1,7 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.request.AddTrainClassToTrainDTO;
+import OnlineBookingSystem.OnlineBookingSystem.dto.request.AddTrainClassToTrainDTO;
 import OnlineBookingSystem.OnlineBookingSystem.model.Train;
 
 import OnlineBookingSystem.OnlineBookingSystem.service.TrainService;
@@ -25,7 +25,6 @@ public class TrainController {
         Train createTrain = trainService.createNewTrains(addTrainClassToTrainDTO);
         return new ResponseEntity<>(createTrain, HttpStatus.CREATED);
     }
-
 
     @GetMapping("/{trainId}")
     public ResponseEntity<?> findTrainById(@PathVariable Long trainId) {

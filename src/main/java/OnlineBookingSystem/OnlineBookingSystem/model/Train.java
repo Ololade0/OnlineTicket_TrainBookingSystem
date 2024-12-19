@@ -19,7 +19,8 @@ public class Train extends AuditBaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String trainName;
+    private String trainCode;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

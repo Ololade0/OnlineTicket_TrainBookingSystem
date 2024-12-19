@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;@Setter
 @Getter
 @Builder
@@ -22,10 +23,26 @@ public class Station extends AuditBaseEntity {
     @NotBlank(message = "Station Code cannot be blank")
     private String stationCode;
 
+    private String stationTag;
+
 
     @JsonBackReference
     @ManyToMany(mappedBy = "stations")
     private List<Schedule> schedules;
 
+    public Station(Long stationId, String stationName, String stationCode, String stationTag) {
+        this.stationId = stationId;
+        this.stationName = stationName;
+        this.stationCode = stationCode;
+        this.stationTag = stationTag;
+    }
+
+    public Station(LocalDateTime createdAt, LocalDateTime updatedAt, Long stationId, String stationName, String stationCode, String stationTag) {
+        super(createdAt, updatedAt);
+        this.stationId = stationId;
+        this.stationName = stationName;
+        this.stationCode = stationCode;
+        this.stationTag = stationTag;
+    }
 }
 

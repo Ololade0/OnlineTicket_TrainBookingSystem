@@ -1,8 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.request.AddTrainClassToTrainDTO;
+import OnlineBookingSystem.OnlineBookingSystem.dto.request.AddTrainClassToTrainDTO;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainCannotBeFoundException;
-import OnlineBookingSystem.OnlineBookingSystem.model.Seat;
 import OnlineBookingSystem.OnlineBookingSystem.model.Train;
 import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.TrainRepository;
@@ -26,27 +25,37 @@ public class TranServiceImpl implements TrainService {
     private TrainRepository trainRepository;
 
 
-        public Train createNewTrains(AddTrainClassToTrainDTO addTrainClassToTrainDTO) {
-            Train newTrain = Train.builder()
-                    .name(addTrainClassToTrainDTO.getClassName())
-                    .build();
-            Train savedTrain = trainRepository.save(newTrain);
-            return addTrainClassToTrain(addTrainClassToTrainDTO, newTrain, savedTrain);
+
+
+    public Train createNewTrains(AddTrainClassToTrainDTO addTrainClassToTrainDTO) {
+        Train newTrain = Train.builder()
+                .trainName(addTrainClassToTrainDTO.getTrainName())
+                .trainCode(addTrainClassToTrainDTO.getTrainCode())
+                .build();
+        Train savedTrain = trainRepository.save(newTrain);
+
+        // Check if the train class list is null or empty
+        if (addTrainClassToTrainDTO.getTrainClass() != null) {
+            for (TrainClass trainClass : addTrainClassToTrainDTO.getTrainClass()) {
+                TrainClass savedTrainClass = trainClassService.saveTrainClasses(
+                        savedTrain,
+                        trainClass,
+                        addTrainClassToTrainDTO.getStartSeat(),
+                        addTrainClassToTrainDTO.getEndSeat()
+                );
+
+                if (savedTrain.getTrainClasses() == null) {
+                    savedTrain.setTrainClasses(new ArrayList<>());
+                }
+                savedTrain.getTrainClasses().add(savedTrainClass);
+            }
         }
 
-    private Train addTrainClassToTrain(AddTrainClassToTrainDTO addTrainClassToTrainDTO, Train newTrain, Train savedTrain) {
-        TrainClass savedTrainClass = trainClassService.saveTrainClasses(
-                savedTrain,
-                addTrainClassToTrainDTO.getTrainClass(),
-                addTrainClassToTrainDTO.getStartSeat(),
-                addTrainClassToTrainDTO.getEndSeat()
-        );
-        if (savedTrain.getTrainClasses() == null) {
-            savedTrain.setTrainClasses(new ArrayList<>());
-        }
-        savedTrain.getTrainClasses().add(savedTrainClass);
-        return trainRepository.save(newTrain);
+        return trainRepository.save(savedTrain);
     }
+
+
+
 
     @Override
         public Train findTrainById(Long trainId) {

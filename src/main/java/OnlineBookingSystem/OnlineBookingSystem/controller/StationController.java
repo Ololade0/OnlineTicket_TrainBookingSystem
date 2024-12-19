@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -30,6 +31,11 @@ public class StationController {
     @GetMapping("/{stationId}")
     public ResponseEntity<?>findStationById(@PathVariable Long stationId){
         Station foundStation = stationService.findStationById(stationId);
+        return new ResponseEntity<>(foundStation, HttpStatus.OK);
+    }
+    @GetMapping("name/{stationName}")
+    public ResponseEntity<?>findStationByName(@PathVariable String stationName){
+        Optional<Station> foundStation = stationService.findStationByName(stationName);
         return new ResponseEntity<>(foundStation, HttpStatus.OK);
     }
 

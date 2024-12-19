@@ -43,7 +43,7 @@ public class Schedule extends AuditBaseEntity {
 
 
 
-    @JsonBackReference  // Prevents recursion when serializing Train object
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "train_id")
     private Train train;

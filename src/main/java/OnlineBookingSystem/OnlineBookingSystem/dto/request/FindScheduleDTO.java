@@ -1,4 +1,4 @@
-package OnlineBookingSystem.OnlineBookingSystem.dto.response.request;
+package OnlineBookingSystem.OnlineBookingSystem.dto.request;
 import OnlineBookingSystem.OnlineBookingSystem.model.Fare;
 import lombok.Getter;
 import lombok.Setter;

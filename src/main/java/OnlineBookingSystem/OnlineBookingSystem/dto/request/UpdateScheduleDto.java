@@ -1,4 +1,4 @@
-package OnlineBookingSystem.OnlineBookingSystem.dto.response.request;
+package OnlineBookingSystem.OnlineBookingSystem.dto.request;
 
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.Route;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.ScheduleType;

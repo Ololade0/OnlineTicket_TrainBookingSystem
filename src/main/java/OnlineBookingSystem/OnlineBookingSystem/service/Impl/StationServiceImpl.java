@@ -58,6 +58,11 @@ public class StationServiceImpl implements StationService {
         return stationRepository.findAll();
     }
 
+//    @Override
+//    public List<Station> findStationsByName(String stationName) {
+//       return stationRepository.findAll();
+//    }
+
 
     private void verifyStation(String stationCode, String stationName) {
         if (stationRepository.existsByStationCode(stationCode)) {
