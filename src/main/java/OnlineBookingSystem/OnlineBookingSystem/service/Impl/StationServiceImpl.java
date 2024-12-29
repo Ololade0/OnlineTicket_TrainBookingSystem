@@ -29,6 +29,11 @@ public class StationServiceImpl implements StationService {
     }
 
     @Override
+    public Station findStation(String station) {
+        return null;
+    }
+
+    @Override
     public Station findStationById(Long stationId) {
         return stationRepository.findById(stationId)
                 .orElseThrow(() -> new StationCannotBeFoundException("Station with ID " + stationId + " cannot be found"));

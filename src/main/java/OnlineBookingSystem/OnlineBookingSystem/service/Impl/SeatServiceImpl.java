@@ -1,5 +1,6 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.SeatCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.Seat;
 import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.SeatStatus;
@@ -27,4 +28,21 @@ public class SeatServiceImpl implements SeatService {
         seatRepository.saveAll(seats);
         return seats;
     }
+
+    @Override
+    public Seat findSeat(int seatNumber) {
+        return seatRepository.findBySeatNumber(seatNumber).orElseThrow(()->
+                new SeatCannotBeFoundException("Seat with number" + seatNumber + "cannot be found"));
+    }
+
+    @Override
+    public Seat findSeatById(Long seatId) {
+        return seatRepository.findById(seatId).orElseThrow(()->
+                new SeatCannotBeFoundException("Seat cannot be found"));
+    }
+    public void updateSeat(Seat seat) {
+        seatRepository.save(seat);
+    }
+
+
 }

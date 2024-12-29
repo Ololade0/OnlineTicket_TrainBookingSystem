@@ -1,6 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainCannotBeFoundException;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainClassCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.Fare;
 import OnlineBookingSystem.OnlineBookingSystem.model.Seat;
 import OnlineBookingSystem.OnlineBookingSystem.model.Train;
@@ -45,6 +46,11 @@ public class trainClassServiceImpl implements TrainClassService {
         return trainClassRepository.findById(trainClassId).orElseThrow(()
                 -> new TrainCannotBeFoundException("Train Class cannot be found Exception"));
 
+    }
+
+    @Override
+    public TrainClass findTrainClassByName(String trainClassName) {
+       return trainClassRepository.findByClassName(trainClassName).orElseThrow(()-> new TrainClassCannotBeFoundException("Class cannot ne found"));
     }
 
     @Override

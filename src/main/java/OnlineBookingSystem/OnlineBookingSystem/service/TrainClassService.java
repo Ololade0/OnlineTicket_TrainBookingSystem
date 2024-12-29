@@ -8,8 +8,9 @@ import java.util.List;
 
 public interface TrainClassService {
 
-    public TrainClass saveTrainClasses(Train train, TrainClass trainClass, int startSeat, int endSeat);
+    TrainClass saveTrainClasses(Train train, TrainClass trainClass, int startSeat, int endSeat);
    TrainClass findTrainClassById(Long trainClassId);
+   TrainClass findTrainClassByName(String trainClassName);
 
     List<TrainClass> findAll();
 }

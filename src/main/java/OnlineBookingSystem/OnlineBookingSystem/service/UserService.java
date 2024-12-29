@@ -5,4 +5,5 @@ import OnlineBookingSystem.OnlineBookingSystem.model.User;
 
 public interface UserService {
    SignUpUserResponse signUp(User user);
+   User findUserByEmail(String email);
 }

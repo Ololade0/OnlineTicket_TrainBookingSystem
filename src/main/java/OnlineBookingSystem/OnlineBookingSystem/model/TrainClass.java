@@ -30,6 +30,7 @@ public class TrainClass {
     @JoinColumn(name = "train_id")
     private Train train;
 
+
     @JsonManagedReference
     @OneToMany(mappedBy = "trainClass", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Seat> seats = new ArrayList<>();

@@ -1,10 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.SignUpUserResponse;
-import OnlineBookingSystem.OnlineBookingSystem.exceptions.IdNumberAlreadyExist;
-import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidIdNumber;
-import OnlineBookingSystem.OnlineBookingSystem.exceptions.PasswordDoesNotMatchException;
-import OnlineBookingSystem.OnlineBookingSystem.exceptions.UserAlreadyExistException;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.*;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.UserRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.UserService;
@@ -14,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -46,7 +44,6 @@ public class UserServiceImpl implements UserService {
 
 
 
-
     private static SignUpUserResponse getSignUpUserResponse(User signupUser) {
         return SignUpUserResponse.builder()
                 .id(signupUser.getId())
@@ -59,7 +56,7 @@ public class UserServiceImpl implements UserService {
                 .confirmPassword(signupUser.getConfirmPassword())
                 .idNumber(signupUser.getIdNumber())
                 .phoneNumber(signupUser.getPhoneNumber())
-                .message("User signed up successfully") // Success message
+                .message("User signed up successfully")
                 .build();
     }
 
@@ -81,7 +78,18 @@ public class UserServiceImpl implements UserService {
     }
 
 
+//    @Override
+//    public User findUserByEmail(String email) {
+//        return userRepository.findUserByEmail(email)
+//                .orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
+//    }
 
+    @Override
+    public User findUserByEmail(String email) {
+        Optional<User> user = userRepository.findUserByEmail(email);
+        System.out.println("User found: " + user);
+        return user.orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
+    }
 
 }
 

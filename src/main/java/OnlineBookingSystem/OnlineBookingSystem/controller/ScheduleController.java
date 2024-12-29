@@ -1,12 +1,15 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
+import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.CreateScheduleDTO;
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.ScheduleResponse;
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.FindScheduleDTO;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidScheduleException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.ScheduleCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.ScheduleDetailsException;
+import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
 import OnlineBookingSystem.OnlineBookingSystem.model.Schedule;
+import OnlineBookingSystem.OnlineBookingSystem.service.BookingService;
 import OnlineBookingSystem.OnlineBookingSystem.service.ScheduleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +29,10 @@ import java.util.List;
 public class ScheduleController {
         @Autowired
         private ScheduleService scheduleService;
+    @Autowired
+    private BookingService bookingService;
 
-//    @PostMapping("/createschedule")
-//    public ResponseEntity<?> createSchedules(
-//            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-//            @RequestParam("trainId") Long trainId) {
-//        try {
-//            List<Schedule> schedules = scheduleService.createSchedules(date, trainId);
-//            return new ResponseEntity<>(schedules, HttpStatus.CREATED);
-//        } catch (InvalidScheduleException | ScheduleDetailsException e) {
-//            // Log the error and return a meaningful response
-//            log.error("Error creating schedules: {}", e.getMessage(), e);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        } catch (RuntimeException e) {
-//            log.error("Unexpected error: {}", e.getMessage(), e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
-//        }
-//    }
+
     @PostMapping("create-schedule")
     public ResponseEntity<?> createSchedules(@RequestBody CreateScheduleDTO createScheduleDTO) throws InvalidScheduleException {
         Schedule createdSchedule = scheduleService.createSchedules(createScheduleDTO);
@@ -69,6 +59,22 @@ public class ScheduleController {
         } catch (ScheduleCannotBeFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/bookTrain")
+    public ResponseEntity<Booking> createBooking(
+            @RequestBody BookTrainDTO bookTrainDTO,
+            @RequestParam Long scheduleId,
+            @RequestParam Long stationId) {
+
+        // Create a FindScheduleDTO based on the provided scheduleId
+        FindScheduleDTO findScheduleDTO = FindScheduleDTO.builder()
+                .scheduleId(scheduleId)
+                .build();
+
+        // Call the service to create a booking
+        Booking booking = bookingService.createBooking(bookTrainDTO, findScheduleDTO);
+        return ResponseEntity.ok(booking);
     }
 
     }
