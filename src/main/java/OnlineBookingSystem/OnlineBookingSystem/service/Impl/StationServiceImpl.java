@@ -41,8 +41,9 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public Optional<Station> findStationByName(String stationName) {
-        return Optional.ofNullable((stationRepository.findByStationName(stationName).orElseThrow(()
-                -> new StationCannotBeFoundException("Station with Name " + stationName + " cannot be found"))));
+        return Optional.ofNullable(stationRepository.findByStationName(stationName).orElseThrow(()
+                -> new StationCannotBeFoundException
+                ("Station with Name " + stationName + " cannot be found")));
     }
 
 //    Optional<Station> findStationByName(String name) {

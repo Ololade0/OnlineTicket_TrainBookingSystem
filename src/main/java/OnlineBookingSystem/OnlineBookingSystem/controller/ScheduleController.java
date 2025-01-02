@@ -61,23 +61,11 @@ public class ScheduleController {
         }
     }
 
-    @PostMapping("/bookTrain")
-    public ResponseEntity<Booking> createBooking(
-            @RequestBody BookTrainDTO bookTrainDTO,
-            @RequestParam Long scheduleId,
-            @RequestParam Long stationId) {
 
-        // Create a FindScheduleDTO based on the provided scheduleId
-        FindScheduleDTO findScheduleDTO = FindScheduleDTO.builder()
-                .scheduleId(scheduleId)
-                .build();
+}
 
-        // Call the service to create a booking
-        Booking booking = bookingService.createBooking(bookTrainDTO, findScheduleDTO);
-        return ResponseEntity.ok(booking);
-    }
 
-    }
+
 
 
 

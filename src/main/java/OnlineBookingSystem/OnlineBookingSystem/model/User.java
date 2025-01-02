@@ -2,6 +2,7 @@ package OnlineBookingSystem.OnlineBookingSystem.model;
 
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.GenderType;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -45,7 +46,7 @@ public class User extends AuditBaseEntity{
 
 
 
-
+    @JsonBackReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 

@@ -3,6 +3,8 @@ package OnlineBookingSystem.OnlineBookingSystem.model;
 
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.SeatStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,6 +15,7 @@ import lombok.*;
 @Entity(name = "seats")
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,12 +23,12 @@ public class Seat {
 
     private int seatNumber;
 //    private int totalSeat;
-    @Embedded
+    @Enumerated(EnumType.STRING)
     private SeatStatus status;
-
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "train_class_id")
-    @JsonBackReference
+
     private TrainClass trainClass;
 
     @ManyToOne

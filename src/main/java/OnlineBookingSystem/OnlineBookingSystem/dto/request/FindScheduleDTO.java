@@ -1,14 +1,14 @@
 package OnlineBookingSystem.OnlineBookingSystem.dto.request;
 import OnlineBookingSystem.OnlineBookingSystem.model.Fare;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Setter
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class FindScheduleDTO {
     private String arrivalStation;
     private String  departureStation;

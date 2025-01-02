@@ -109,12 +109,14 @@ public class ScheduleServiceImplementation implements ScheduleService {
 
     @Override
     public ScheduleResponse findSchedule(FindScheduleDTO findScheduleDTO) {
+        validateStationNames(findScheduleDTO);
         Optional<Station> arrivalStation = stationService.findStationByName(findScheduleDTO.getArrivalStation());
         Optional<Station> departureStation = stationService.findStationByName(findScheduleDTO.getDepartureStation());
 
         if (arrivalStation.isEmpty() || departureStation.isEmpty()) {
             throw new ScheduleCannotBeFoundException("Invalid station names provided.");
         }
+
         List<Schedule> schedules = scheduleRepository.findSchedule(
                 findScheduleDTO.getArrivalStation(),
                 findScheduleDTO.getDepartureStation(),
@@ -126,6 +128,12 @@ public class ScheduleServiceImplementation implements ScheduleService {
         }
 
         return scheduleResponses(schedules, findScheduleDTO.getFare());
+    }
+
+    private void validateStationNames(FindScheduleDTO findScheduleDTO) {
+        if (findScheduleDTO.getArrivalStation() == null || findScheduleDTO.getDepartureStation() == null) {
+            throw new IllegalArgumentException("Arrival and departure station names must not be null.");
+        }
     }
     private ScheduleResponse scheduleResponses(List<Schedule> scheduleList, Fare fare){
       return new ScheduleResponse(scheduleList, fare);

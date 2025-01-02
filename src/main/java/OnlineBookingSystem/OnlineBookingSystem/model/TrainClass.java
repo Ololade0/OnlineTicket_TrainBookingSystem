@@ -1,7 +1,6 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +20,7 @@ public class TrainClass {
     private Long trainClassId;
 
     private String className;
-
+//
     @Embedded
     private Fare fare;
 

@@ -34,7 +34,6 @@ public class TranServiceImpl implements TrainService {
                 .build();
         Train savedTrain = trainRepository.save(newTrain);
 
-        // Check if the train class list is null or empty
         if (addTrainClassToTrainDTO.getTrainClass() != null) {
             for (TrainClass trainClass : addTrainClassToTrainDTO.getTrainClass()) {
                 TrainClass savedTrainClass = trainClassService.saveTrainClasses(
