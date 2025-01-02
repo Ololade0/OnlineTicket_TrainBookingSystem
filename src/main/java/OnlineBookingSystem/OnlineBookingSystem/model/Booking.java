@@ -37,8 +37,13 @@ public class Booking {
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private Payment payment;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "schedule_id", nullable = false)
+//    private Schedule schedule;
 
     private Double fareAmount;
+
 
 
 }

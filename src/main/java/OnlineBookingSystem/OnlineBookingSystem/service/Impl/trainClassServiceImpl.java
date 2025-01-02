@@ -50,7 +50,7 @@ public class trainClassServiceImpl implements TrainClassService {
 
     @Override
     public TrainClass findTrainClassByName(String trainClassName) {
-       return trainClassRepository.findByClassName(trainClassName).orElseThrow(()-> new TrainClassCannotBeFoundException("Class cannot ne found"));
+       return trainClassRepository.findByClassName(trainClassName).orElseThrow(()-> new TrainClassCannotBeFoundException("Train Class cannot be found"));
     }
 
     @Override

@@ -16,7 +16,8 @@ import java.util.List;
 @Getter
 public class BookTrainDTO {
     private int seatNumber;
-    private Long userId;
+//    private Long userId;
+    private String userEmail;
     private String passengerPhoneNumber;
     private String trainClassName;
     private String passengerType;

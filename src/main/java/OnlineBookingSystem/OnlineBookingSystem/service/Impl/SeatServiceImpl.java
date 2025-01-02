@@ -1,6 +1,9 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidSeatNumberException;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.SeatAlreadyBookedException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.SeatCannotBeFoundException;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainClassCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.Seat;
 import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.SeatStatus;
@@ -18,8 +21,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
     private final SeatRepository seatRepository;
+
+
+
+
     public List<Seat> generateSeats(int startSeat, int endSeat, TrainClass trainClass) {
-//        TrainClass foundTrainClass = trainClassService.findTrainClassById(trainClass.getTrainClassId());
         List<Seat> seats = new ArrayList<>();
         for (int i = startSeat; i <= endSeat; i++) {
             Seat seat = new Seat();
@@ -30,6 +36,24 @@ public class SeatServiceImpl implements SeatService {
         }
         seatRepository.saveAll(seats);
         return seats;
+    }
+
+    @Override
+    public Seat bookSeat(int seatNumber) {
+        Optional<Seat> foundSeat = seatRepository.findBySeatNumber(seatNumber);
+
+        if (foundSeat.isEmpty()){
+            throw new InvalidSeatNumberException("Seat number " + seatNumber + " does not exist.");
+
+        }
+        if (foundSeat.get().getStatus() == SeatStatus.BOOKED) {
+            throw new SeatAlreadyBookedException("Seat number " + seatNumber + " has already been booked");
+        }
+
+
+        Seat seatToBook = foundSeat.get();
+        seatToBook.setStatus(SeatStatus.BOOKED);
+        return seatRepository.save(seatToBook);
     }
 
     @Override
@@ -44,18 +68,25 @@ public class SeatServiceImpl implements SeatService {
                 new SeatCannotBeFoundException("Seat cannot be found")));
     }
     public void updateSeat(Seat seat) {
+
         seatRepository.save(seat);
     }
+
+//    @Override
+//    public List<Integer> findSeatNumberByTrainClass(TrainClass trainClass) {
+////        TrainClass  foundTrainClass = trainClassService.findTrainClassByName(trainClass.getClassName());
+////        if(foundTrainClass ==  null){
+////            throw new TrainClassCannotBeFoundException("");
+////
+////        }
+//        return seatRepository.findSeatNumberByTrainClass(trainClass);
+//    }
 
     @Override
     public List<Seat> findAllSeat() {
         return seatRepository.findAll();
     }
 
-    @Override
-    public Optional<Seat> findSeatByNumber(int seatNumber) {
-        return seatRepository.findBySeatNumber(seatNumber);
-    }
 
 
 }

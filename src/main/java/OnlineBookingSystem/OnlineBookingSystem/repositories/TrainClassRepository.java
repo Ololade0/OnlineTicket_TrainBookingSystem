@@ -12,8 +12,6 @@ import java.util.Optional;
 public interface TrainClassRepository extends JpaRepository<TrainClass, Long> {
         Optional<TrainClass> findByClassName(String trainClassName);
 
-//        @Query("SELECT t FROM TrainClass t WHERE LOWER(t.name) = LOWER(:name)")
-//        Optional<TrainClass> findByClassNameIgnoreCase(@Param("name") String name);
 
 
 

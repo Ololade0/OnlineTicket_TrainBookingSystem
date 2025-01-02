@@ -2,7 +2,10 @@ package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
 
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidPassengerTypeException;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidSeatNumberException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.SeatAlreadyBookedException;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.UserCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.*;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.SeatStatus;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.BookingRepository;
@@ -28,23 +31,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking createBooking(BookTrainDTO bookTrainDTO) {
-        // Validate user
-        User foundUser = userService.findUserById(bookTrainDTO.getUserId());
-        if (foundUser == null) {
-            throw new IllegalArgumentException("User not found for ID: " + bookTrainDTO.getUserId());
-        }
 
-        Optional<Seat> foundSeat = seatService.findSeatByNumber(bookTrainDTO.getSeatNumber());
-        if(foundSeat.isEmpty() || foundSeat.get().getStatus() == SeatStatus.BOOKED ){
-            throw new SeatAlreadyBookedException("Seat number " + foundSeat + "has already been booked");
-        }
-        foundSeat.get().setStatus(SeatStatus.BOOKED);
-        seatService.updateSeat(foundSeat.get());
-
+        User foundUser = userService.findUserByEmail(bookTrainDTO.getUserEmail());
         TrainClass foundTrainClass = trainClassService.findTrainClassByName(bookTrainDTO.getTrainClassName());
-        if (foundTrainClass == null) {
-            throw new IllegalArgumentException("Train class not found: " + bookTrainDTO.getTrainClassName());
-        }
+        Seat bookedSeat = seatService.bookSeat(bookTrainDTO.getSeatNumber());
         Fare fare = foundTrainClass.getFare();
         Double selectedFare;
         if ("adult".equalsIgnoreCase(bookTrainDTO.getPassengerType())) {
@@ -52,12 +42,10 @@ public class BookingServiceImpl implements BookingService {
         } else if ("minor".equalsIgnoreCase(bookTrainDTO.getPassengerType())) {
             selectedFare = fare.getMinorPrices();
         } else {
-            throw new IllegalArgumentException("Invalid passenger type: " + bookTrainDTO.getPassengerType());
+            throw new InvalidPassengerTypeException("Invalid passenger type: " + bookTrainDTO.getPassengerType());
         }
-
-        // Create and save the booking
         Booking newBooking = Booking.builder()
-                .seats(List.of(foundSeat.get()))
+                .seats(List.of(bookedSeat))
                 .fareAmount(selectedFare)
                 .trainClass(foundTrainClass)
                 .user(foundUser)

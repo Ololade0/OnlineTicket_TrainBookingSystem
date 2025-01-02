@@ -63,5 +63,8 @@ public class Schedule extends AuditBaseEntity {
     )
     private List<Station> stations;
 
+//    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
+//    private List<Booking> bookings;
+
 }
 

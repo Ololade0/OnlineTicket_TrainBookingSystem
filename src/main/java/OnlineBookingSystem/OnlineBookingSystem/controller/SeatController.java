@@ -26,4 +26,9 @@ public class SeatController {
         return new ResponseEntity<>(generatedSeat, HttpStatus.CREATED);
 
     }
+//    @PostMapping("/seat-trainclass")
+//    public ResponseEntity<?> findSeatNumberByTrainClass(@RequestParam TrainClass trainClass){
+//    List<Integer> foundSeat = seatService.findSeatNumberByTrainClass(trainClass);
+//    return new ResponseEntity<>(foundSeat, HttpStatus.FOUND);
+//    }
 }
