@@ -13,13 +13,17 @@ public class Fare {
     public Fare() {
     }
 
-    // Constructor
+
     public Fare(Double adultPrices, Double minorPrices) {
         this.adultPrices = adultPrices;
         this.minorPrices = minorPrices;
     }
 
-    // Getter and Setter methods
+    public Fare(Fare fare) {
+
+    }
+
+
     public Double getAdultPrices() {
         return adultPrices;
     }

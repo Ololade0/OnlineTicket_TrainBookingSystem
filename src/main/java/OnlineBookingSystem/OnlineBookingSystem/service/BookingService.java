@@ -1,10 +1,9 @@
 package OnlineBookingSystem.OnlineBookingSystem.service;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
-import OnlineBookingSystem.OnlineBookingSystem.dto.request.FindScheduleDTO;
-import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
+import OnlineBookingSystem.OnlineBookingSystem.dto.response.BookingResponse;
 
 public interface BookingService  {
-     Booking createBooking(BookTrainDTO bookTrainDTO);
-//      Booking bookTrains(BookTrainDTO bookTrainDTO);
+     BookingResponse createBooking(BookTrainDTO bookTrainDTO);
+
 }

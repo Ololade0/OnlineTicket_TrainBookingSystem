@@ -22,19 +22,33 @@ public class Train extends AuditBaseEntity {
     private String trainName;
     private String trainCode;
 
-    @JsonManagedReference
+//    @JsonManagedReference("train-trainClass")
+//    @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    private List<TrainClass> trainClasses = new ArrayList<>();
+
+    @JsonManagedReference("train-trainClass")
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<TrainClass> trainClasses = new ArrayList<>();
+
 
     @JsonManagedReference
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Schedule> schedules;
 
+//    public void addTrainClass(TrainClass trainClass) {
+//        if (trainClasses == null) {
+//            trainClasses = new ArrayList<>();
+//        }
+//        trainClasses.add(trainClass);
+//        trainClass.setTrain(this);
+//    }
+
     public void addTrainClass(TrainClass trainClass) {
-        if (trainClasses == null) {
-            trainClasses = new ArrayList<>();
+        if (this.trainClasses == null) {
+            this.trainClasses = new ArrayList<>();
         }
-        trainClasses.add(trainClass);
-        trainClass.setTrain(this);
+        this.trainClasses.add(trainClass);
+        trainClass.setTrain(this); // Maintain the bidirectional relationship
     }
+
 }

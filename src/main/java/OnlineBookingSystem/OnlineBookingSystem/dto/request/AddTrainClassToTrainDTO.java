@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 public class AddTrainClassToTrainDTO {
 
-   private List<TrainClass> trainClass;
+    private List<TrainClassDTO> trainClass;
     private String trainName;
     private String trainCode;
     private int startSeat;

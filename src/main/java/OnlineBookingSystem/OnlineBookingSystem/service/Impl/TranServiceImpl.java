@@ -1,7 +1,10 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.AddTrainClassToTrainDTO;
+import OnlineBookingSystem.OnlineBookingSystem.dto.request.TrainClassDTO;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainCannotBeFoundException;
+import OnlineBookingSystem.OnlineBookingSystem.model.Fare;
+import OnlineBookingSystem.OnlineBookingSystem.model.Seat;
 import OnlineBookingSystem.OnlineBookingSystem.model.Train;
 import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.TrainRepository;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -35,7 +39,7 @@ public class TranServiceImpl implements TrainService {
         Train savedTrain = trainRepository.save(newTrain);
 
         if (addTrainClassToTrainDTO.getTrainClass() != null) {
-            for (TrainClass trainClass : addTrainClassToTrainDTO.getTrainClass()) {
+            for (TrainClassDTO trainClass : addTrainClassToTrainDTO.getTrainClass()) {
                 TrainClass savedTrainClass = trainClassService.saveTrainClasses(
                         savedTrain,
                         trainClass,
@@ -52,6 +56,11 @@ public class TranServiceImpl implements TrainService {
 
         return trainRepository.save(savedTrain);
     }
+
+
+
+
+
 
 
 

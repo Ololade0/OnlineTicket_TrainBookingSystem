@@ -21,5 +21,7 @@ public interface ScheduleService {
       Schedule updateSchedule(UpdateScheduleDto updateScheduleDto);
 
     List<Schedule> findAllSchedule();
+
+    Schedule findByScheduleId(Long scheduleId);
 //    List<TimetableResponse> timetableForMovt();
 }

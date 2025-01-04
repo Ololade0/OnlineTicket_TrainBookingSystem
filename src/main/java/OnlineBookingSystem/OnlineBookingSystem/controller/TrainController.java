@@ -26,10 +26,10 @@ public class TrainController {
             description = "This API allows users to add a new train with specific classes and details.",
             tags = {"Post"}
     )
-    @PostMapping("/create")
+    @PostMapping(value = "/create")
     public ResponseEntity<?> createTrain(@RequestBody AddTrainClassToTrainDTO addTrainClassToTrainDTO) {
-        Train createTrain = trainService.createNewTrains(addTrainClassToTrainDTO);
-        return new ResponseEntity<>(createTrain, HttpStatus.CREATED);
+        Train train = trainService.createNewTrains(addTrainClassToTrainDTO);
+        return new ResponseEntity<>(train, HttpStatus.CREATED);
     }
 
     @GetMapping("/{trainId}")

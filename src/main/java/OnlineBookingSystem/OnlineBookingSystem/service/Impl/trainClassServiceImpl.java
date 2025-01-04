@@ -1,5 +1,6 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
+import OnlineBookingSystem.OnlineBookingSystem.dto.request.TrainClassDTO;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainClassCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.Fare;
@@ -27,7 +28,7 @@ public class trainClassServiceImpl implements TrainClassService {
     private TrainClassRepository trainClassRepository;
     private final SeatService seatService;
 
-        public TrainClass saveTrainClasses(Train train, TrainClass trainClass, int startSeat, int endSeat) {
+        public TrainClass saveTrainClasses(Train train, TrainClassDTO trainClass, int startSeat, int endSeat) {
             TrainClass newTrainClass = TrainClass.builder()
                     .className(trainClass.getClassName())
                     .fare(trainClass.getFare())

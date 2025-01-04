@@ -6,13 +6,14 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 @Setter
 @Getter
 @Builder
-@ToString
+@ToString(exclude = {"seats", "payment"})
 @Entity(name = "bookings")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,21 +27,22 @@ public class Booking {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @JsonBackReference
+    @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "train_class_id")
     private TrainClass trainClass;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    private List<Seat> seats;
+    private List<Seat> seats = new ArrayList<>();
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private Payment payment;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "schedule_id", nullable = false)
-//    private Schedule schedule;
+
+    @ManyToOne
+    @JsonManagedReference
+    @JoinColumn(name = "schedule_id", nullable = false)
+    private Schedule schedule;
 
     private Double fareAmount;
 

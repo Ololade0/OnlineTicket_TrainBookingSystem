@@ -24,15 +24,24 @@ public class TrainClass {
     @Embedded
     private Fare fare;
 
-    @JsonBackReference
+
+    @JsonBackReference("train-trainClass")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "train_id")
     private Train train;
 
-
-    @JsonManagedReference
+    @JsonManagedReference("trainClass-seats")
     @OneToMany(mappedBy = "trainClass", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Seat> seats = new ArrayList<>();
 
+   @JsonBackReference("trainClass-bookings")
+//    @JsonIgnore
+    @OneToMany(mappedBy = "trainClass", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<Booking> bookings;
+
+
     private int totalSeat;
+
+    public TrainClass(Long trainClassId, String className, Object o, int i) {
+    }
 }

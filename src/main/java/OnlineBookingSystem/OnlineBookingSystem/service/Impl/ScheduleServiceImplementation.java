@@ -155,6 +155,11 @@ public class ScheduleServiceImplementation implements ScheduleService {
     public List<Schedule> findAllSchedule() {
         return scheduleRepository.findAll();
     }
+
+    @Override
+    public Schedule findByScheduleId(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId).orElseThrow(()-> new ScheduleCannotBeFoundException("Schedule does not exist"));
+    }
 }
 
 

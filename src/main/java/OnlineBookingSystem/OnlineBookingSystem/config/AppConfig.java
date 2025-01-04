@@ -1,5 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.config;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -18,15 +20,19 @@ public class AppConfig {
         return new RestTemplate(factory);
     }
 
-//    @Bean
-//    public ObjectMapper objectMapper() {
-//        return new ObjectMapper();
-//    }
 
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return mapper;
     }
+
+//    @Bean
+//    public ObjectMapper objectMapper() {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+//        return objectMapper;
+//    }
 }

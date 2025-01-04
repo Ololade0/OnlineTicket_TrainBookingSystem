@@ -1,6 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 
+import OnlineBookingSystem.OnlineBookingSystem.dto.request.TrainClassDTO;
 import OnlineBookingSystem.OnlineBookingSystem.model.Train;
 import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
 import OnlineBookingSystem.OnlineBookingSystem.service.TrainClassService;
@@ -23,7 +24,7 @@ public class TrainClassController {
     @PostMapping("/train-classes")
     public ResponseEntity<?> saveTrainClasses(
             @RequestBody Train train,
-            @RequestBody TrainClass trainClass,
+            @RequestBody TrainClassDTO trainClass,
             @RequestParam int startSeat,
             @RequestParam int endSeat
             ) {

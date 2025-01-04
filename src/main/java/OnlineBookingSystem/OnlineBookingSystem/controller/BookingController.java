@@ -1,6 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
+import OnlineBookingSystem.OnlineBookingSystem.dto.response.BookingResponse;
 import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
 import OnlineBookingSystem.OnlineBookingSystem.service.BookingService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class BookingController {
     @PostMapping("/bookTrain")
     public ResponseEntity<?> createBooking(@RequestBody BookTrainDTO bookTrainDTO) {
         try {
-            Booking newBooking = bookingService.createBooking(bookTrainDTO);
+            BookingResponse newBooking = bookingService.createBooking(bookTrainDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(newBooking);
         } catch (IllegalArgumentException e) {
             System.err.println("Validation error: " + e.getMessage());

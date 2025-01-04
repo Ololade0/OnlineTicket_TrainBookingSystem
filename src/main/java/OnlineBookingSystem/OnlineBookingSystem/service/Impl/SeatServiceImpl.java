@@ -22,9 +22,6 @@ import java.util.Optional;
 public class SeatServiceImpl implements SeatService {
     private final SeatRepository seatRepository;
 
-
-
-
     public List<Seat> generateSeats(int startSeat, int endSeat, TrainClass trainClass) {
         List<Seat> seats = new ArrayList<>();
         for (int i = startSeat; i <= endSeat; i++) {
@@ -38,9 +35,10 @@ public class SeatServiceImpl implements SeatService {
         return seats;
     }
 
+
     @Override
-    public Seat bookSeat(int seatNumber) {
-        Optional<Seat> foundSeat = seatRepository.findBySeatNumber(seatNumber);
+    public Seat bookSeat(String trainClassName, int seatNumber) {
+        Optional<Seat> foundSeat = seatRepository.findBySeatNumberAndTrainClass_ClassName(trainClassName, seatNumber);
 
         if (foundSeat.isEmpty()){
             throw new InvalidSeatNumberException("Seat number " + seatNumber + " does not exist.");
@@ -71,16 +69,6 @@ public class SeatServiceImpl implements SeatService {
 
         seatRepository.save(seat);
     }
-
-//    @Override
-//    public List<Integer> findSeatNumberByTrainClass(TrainClass trainClass) {
-////        TrainClass  foundTrainClass = trainClassService.findTrainClassByName(trainClass.getClassName());
-////        if(foundTrainClass ==  null){
-////            throw new TrainClassCannotBeFoundException("");
-////
-////        }
-//        return seatRepository.findSeatNumberByTrainClass(trainClass);
-//    }
 
     @Override
     public List<Seat> findAllSeat() {

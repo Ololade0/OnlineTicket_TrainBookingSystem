@@ -25,10 +25,10 @@ public class Seat {
 //    private int totalSeat;
     @Enumerated(EnumType.STRING)
     private SeatStatus status;
+
     @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "train_class_id")
-
     private TrainClass trainClass;
 
     @ManyToOne
