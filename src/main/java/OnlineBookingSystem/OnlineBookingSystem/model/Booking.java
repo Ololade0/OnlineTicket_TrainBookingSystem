@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -34,7 +35,7 @@ public class Booking {
 
     @JsonManagedReference
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    private List<Seat> seats = new ArrayList<>();
+    private List<Seat> seats;
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private Payment payment;
@@ -45,6 +46,7 @@ public class Booking {
     private Schedule schedule;
 
     private Double fareAmount;
+
 
 
 

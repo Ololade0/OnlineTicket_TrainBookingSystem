@@ -2,7 +2,6 @@ package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.BookingResponse;
-import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
 import OnlineBookingSystem.OnlineBookingSystem.service.BookingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

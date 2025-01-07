@@ -90,6 +90,11 @@ public class UserServiceImpl implements UserService {
         return user.orElseThrow(() -> new UserCannotBeFoundException("User with id " + userId + " cannot be found"));
     }
 
+    public User findUserByEmailOrNull(String email) {
+        Optional<User> user = userRepository.findUserByEmail(email);
+        return user.orElse(null); // Return null if user is not found
+    }
+
 }
 
 

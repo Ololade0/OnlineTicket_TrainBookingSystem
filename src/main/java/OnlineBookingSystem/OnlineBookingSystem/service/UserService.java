@@ -7,4 +7,6 @@ public interface UserService {
    SignUpUserResponse signUp(User user);
    User findUserByEmail(String email);
    User findUserById(Long userId);
+
+   User findUserByEmailOrNull(String email);
 }

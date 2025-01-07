@@ -32,7 +32,7 @@ public class User extends AuditBaseEntity{
     private String lastName;
     @NotBlank(message = "Kindly enter a valid email")
     private String email;
-    @NotNull(message = "Kindly choose your gender")
+//    @NotNull(message = "Kindly choose your gender")
     private GenderType gender;
     private String password;
     private String confirmPassword;
@@ -41,7 +41,7 @@ public class User extends AuditBaseEntity{
     private LocalDate DateOfBirth;
     @Size(min = 10, max = 15, message = "ID number must be between 10 and 15 characters")
     private String idNumber;
-    @NotNull(message = "Kindly choose mode of identification")
+//    @NotNull(message = "Kindly choose mode of identification")
     private IdentificationType identificationType;
 
 
