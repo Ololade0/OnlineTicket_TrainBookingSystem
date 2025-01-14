@@ -27,7 +27,7 @@ public class SeatServiceImpl implements SeatService {
         for (int i = startSeat; i <= endSeat; i++) {
             Seat seat = new Seat();
             seat.setSeatNumber(i);
-            seat.setStatus(SeatStatus.AVAILBALE);
+            seat.setStatus(SeatStatus.AVAILABLE);
             seat.setTrainClass(trainClass);
             seats.add(seat);
         }

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.antlr.v4.runtime.misc.NotNull;
 
+import java.util.Set;
+
 @Setter
 @Getter
 @Builder
@@ -24,6 +26,7 @@ public class Role {
         this.roleType = roleType;
 
     }
+
 
     @Override
     public String toString() {

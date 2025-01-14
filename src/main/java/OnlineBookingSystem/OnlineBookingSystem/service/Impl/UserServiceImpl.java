@@ -2,7 +2,9 @@ package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.SignUpUserResponse;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.*;
+import OnlineBookingSystem.OnlineBookingSystem.model.Role;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.RoleType;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.UserRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     @Override
     public SignUpUserResponse signUp(User user) {
+
 //        validateUserInfo(user);
         User signupUser = User.builder()
                 .firstName(user.getFirstName())
@@ -33,10 +36,11 @@ public class UserServiceImpl implements UserService {
                 .password(user.getPassword())
                 .idNumber(user.getIdNumber())
                 .confirmPassword(user.getConfirmPassword())
-                .idNumber(user.getIdNumber())
-                .roleSet(new HashSet<>())
+//                .idNumber(user.getIdNumber())
+//                .roleSet(new HashSet<>())
                 .build();
-//        signupUser.getRoleSet().add(new Role(RoleType.USER_ROLE));
+//        RoleType roleType = RoleType.USER_ROLE;
+//        signupUser.getRoleSet().add(new Role(roleType));
         log.info("User Details: {}", signupUser);
         userRepository.save(signupUser);
         return getSignUpUserResponse(signupUser);
@@ -93,6 +97,11 @@ public class UserServiceImpl implements UserService {
     public User findUserByEmailOrNull(String email) {
         Optional<User> user = userRepository.findUserByEmail(email);
         return user.orElse(null); // Return null if user is not found
+    }
+
+    @Override
+    public User save(User user) {
+       return userRepository.save(user);
     }
 
 }

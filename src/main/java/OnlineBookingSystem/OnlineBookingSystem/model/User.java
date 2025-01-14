@@ -3,6 +3,7 @@ package OnlineBookingSystem.OnlineBookingSystem.model;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.GenderType;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,9 +21,10 @@ import java.util.Set;
 @Builder
 @ToString
 
-@Entity(name = "users")
+
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity(name = "users")
 public class User extends AuditBaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,14 +41,14 @@ public class User extends AuditBaseEntity{
     @NotBlank(message = "phonenumber must not be blank")
     private String phoneNumber;
     private LocalDate DateOfBirth;
-    @Size(min = 10, max = 15, message = "ID number must be between 10 and 15 characters")
+//    @Size(min = 10, max = 15, message = "ID number must be between 10 and 15 characters")
     private String idNumber;
 //    @NotNull(message = "Kindly choose mode of identification")
     private IdentificationType identificationType;
 
 
 
-    @JsonBackReference
+    @JsonIgnore()
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 

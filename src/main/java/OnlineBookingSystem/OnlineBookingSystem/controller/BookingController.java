@@ -2,6 +2,7 @@ package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.BookingResponse;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidPassengerTypeException;
 import OnlineBookingSystem.OnlineBookingSystem.service.BookingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class BookingController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        } catch (InvalidPassengerTypeException e) {
+            throw new RuntimeException(e);
         }
 
     }

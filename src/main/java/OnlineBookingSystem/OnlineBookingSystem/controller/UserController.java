@@ -3,6 +3,7 @@ package OnlineBookingSystem.OnlineBookingSystem.controller;
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.SignUpUserResponse;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.UserCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.RoleType;
 import OnlineBookingSystem.OnlineBookingSystem.service.UserService;
 
 import jakarta.validation.Valid;

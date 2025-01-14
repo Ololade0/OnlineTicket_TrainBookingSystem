@@ -1,13 +1,10 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
-import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 
@@ -17,16 +14,18 @@ import java.util.List;
 @ToString(exclude = {"seats", "payment"})
 @Entity(name = "bookings")
 @AllArgsConstructor
-@NoArgsConstructor
+
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
 
     @JsonManagedReference
-    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne
     private User user;
+
+
 
     @JsonManagedReference
     @ManyToOne
@@ -35,7 +34,7 @@ public class Booking {
 
     @JsonManagedReference
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    private List<Seat> seats;
+    private List<Seat> seats = new ArrayList<>();
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private Payment payment;
@@ -50,4 +49,15 @@ public class Booking {
 
 
 
+    public Booking() {
+        this.seats = new ArrayList<>();
+    }
+
+
+    public void addSeat(Seat seat) {
+        if (this.seats == null) {
+            this.seats = new ArrayList<>();
+        }
+        this.seats.add(seat);
+    }
 }

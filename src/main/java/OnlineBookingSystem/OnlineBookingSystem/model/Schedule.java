@@ -49,8 +49,8 @@ public class Schedule extends AuditBaseEntity {
     private Fare fare;
 
 
+    @JsonBackReference("scheduleBooking")
 
-    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "train_id")
     private Train train;

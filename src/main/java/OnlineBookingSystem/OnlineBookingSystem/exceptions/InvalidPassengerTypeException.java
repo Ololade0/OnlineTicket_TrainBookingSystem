@@ -1,5 +1,5 @@
 package OnlineBookingSystem.OnlineBookingSystem.exceptions;
-public class InvalidPassengerTypeException extends RuntimeException {
+public class InvalidPassengerTypeException extends Throwable {
     public InvalidPassengerTypeException(String message) {
         super(message);
     }

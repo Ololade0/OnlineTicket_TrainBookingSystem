@@ -1,25 +1,31 @@
 package OnlineBookingSystem.OnlineBookingSystem.dto.request;
-import OnlineBookingSystem.OnlineBookingSystem.model.enums.GenderType;
+
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Setter
 @Getter
-public class BookTrainDTO {
+@Builder
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 
-    private String userEmail;
+public class BookTrainDTO {
     private String trainClassName;
-    private int seatNumber;
     private Long scheduleId;
+    private String userEmail;
     private String passengerType;
-    private String secondPassengerType;
+    private int seatNumber;
+//    private List<PassengerDTO> additionalPassengers = new ArrayList<>();
     private String secondPassengerEmail;
     private String secondPassengerName;
     private String secondPassengerIdNumber;
     private String secondPassengerPhoneNumber;
-    private int secondPassengerSeatNumber;
     private IdentificationType secondPassengerIdentificationType;
-    private GenderType genderType;
+    private String secondPassengerType;
+    private int secondPassengerSeatNumber;
 
 }

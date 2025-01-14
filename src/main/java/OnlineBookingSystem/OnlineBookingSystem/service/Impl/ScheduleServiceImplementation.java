@@ -72,8 +72,8 @@ public class ScheduleServiceImplementation implements ScheduleService {
                 .distance(distanceCalculatorService.calculateDistance())
                 .stations(stations)
                 .build();
-        validateScheduleTimetable(departureStation.get(),arrivalStation.get(),createSceduleDTO.getScheduleType(),
-                createSceduleDTO.getArrivalDate(), createSceduleDTO.getDepartureTime(), createSceduleDTO.getArrivalTime());
+//        validateScheduleTimetable(departureStation.get(),arrivalStation.get(),createSceduleDTO.getScheduleType(),
+//                createSceduleDTO.getArrivalDate(), createSceduleDTO.getDepartureTime(), createSceduleDTO.getArrivalTime());
 
         Duration duration = Duration.between(createSceduleDTO.getDepartureTime(), createSceduleDTO.getArrivalTime());
         schedule.setDuration(duration);
