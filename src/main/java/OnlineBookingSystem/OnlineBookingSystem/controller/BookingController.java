@@ -22,20 +22,16 @@ public class BookingController {
 
 
     @PostMapping("/bookTrain")
-    public ResponseEntity<?> createBooking(@RequestBody BookTrainDTO bookTrainDTO) {
+    public ResponseEntity<BookingResponse> createBooking(@RequestBody BookTrainDTO bookTrainDTO) {
         try {
-            BookingResponse newBooking = bookingService.createBooking(bookTrainDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(newBooking);
-        } catch (IllegalArgumentException e) {
-            System.err.println("Validation error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
-        } catch (InvalidPassengerTypeException e) {
-            throw new RuntimeException(e);
-        }
+            BookingResponse bookingResponse = bookingService.createBooking(bookTrainDTO);
+            return ResponseEntity.ok(bookingResponse);
+        } catch (Exception | InvalidPassengerTypeException e) {
 
+            return ResponseEntity.badRequest().body(new BookingResponse("Error: " + e.getMessage()));
+        }
     }
+
+
 
 }
