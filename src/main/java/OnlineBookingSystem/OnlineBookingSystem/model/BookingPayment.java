@@ -6,7 +6,6 @@ import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Setter
@@ -16,15 +15,18 @@ import java.time.LocalDateTime;
 @Entity(name = "payments")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Payment {
+public class BookingPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Double totalPrice;
+
     @Enumerated(value = EnumType.STRING)
     private PaymentStatus paymentStatus;
+
     @Enumerated(value = EnumType.STRING)
     private PaymentMethod paymentMethod;
+
     private String transactionReference;
     private LocalDateTime paymentDate;
     private String currency;
@@ -39,6 +41,11 @@ public class Payment {
     @OneToOne
     @JoinColumn(name = "booking_id")
     private Booking booking;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
 }
 
 

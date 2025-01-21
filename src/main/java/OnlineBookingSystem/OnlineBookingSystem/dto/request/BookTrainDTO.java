@@ -1,5 +1,6 @@
 package OnlineBookingSystem.OnlineBookingSystem.dto.request;
 
+import OnlineBookingSystem.OnlineBookingSystem.model.OtherPassenger;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
 import lombok.*;
 
@@ -19,13 +20,6 @@ public class BookTrainDTO {
     private String userEmail;
     private String passengerType;
     private int seatNumber;
-//    private List<PassengerDTO> additionalPassengers = new ArrayList<>();
-    private String secondPassengerEmail;
-    private String secondPassengerName;
-    private String secondPassengerIdNumber;
-    private String secondPassengerPhoneNumber;
-    private IdentificationType secondPassengerIdentificationType;
-    private String secondPassengerType;
-    private int secondPassengerSeatNumber;
+   private List<OtherPassenger> additionalPassengers = new ArrayList<>();
 
 }

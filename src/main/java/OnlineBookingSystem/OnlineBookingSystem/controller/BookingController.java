@@ -23,6 +23,7 @@ public class BookingController {
 
     @PostMapping("/bookTrain")
     public ResponseEntity<BookingResponse> createBooking(@RequestBody BookTrainDTO bookTrainDTO) {
+        System.out.println("Incoming payload: " + bookTrainDTO);
         try {
             BookingResponse bookingResponse = bookingService.createBooking(bookTrainDTO);
             return ResponseEntity.ok(bookingResponse);

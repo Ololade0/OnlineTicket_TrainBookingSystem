@@ -4,6 +4,7 @@ import OnlineBookingSystem.OnlineBookingSystem.model.enums.GenderType;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -56,8 +57,12 @@ public class User extends AuditBaseEntity{
     private List<Notification> notifications;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Role> roleSet = new HashSet<>();
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    private Set<Role> roleSet = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    private List<OtherPassenger> otherPassengers;
 
 
 

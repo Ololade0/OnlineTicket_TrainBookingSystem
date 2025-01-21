@@ -1,5 +1,6 @@
 package OnlineBookingSystem.OnlineBookingSystem.dto.request;
 
+import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentMethod;
 import lombok.*;
 
@@ -12,9 +13,10 @@ import lombok.*;
 public class PaymentRequest {
     private Double total;
     private String currency;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     private String intent;
     private String description;
     private String cancelUrl;
     private String successUrl;
+    private Booking booking;
 }

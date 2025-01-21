@@ -1,9 +1,9 @@
 package OnlineBookingSystem.OnlineBookingSystem.dto.response;
 
+import OnlineBookingSystem.OnlineBookingSystem.model.OtherPassenger;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -12,34 +12,28 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingResponse {
-
-    private Long bookingId; // You can set this after creating a booking
+    private Long bookingId;
     private String message;
-    private int bookedSeats;
+    private int bookedSeat;
     private Double fareAmount;
     private Double totalFareAmount;
-    private User user;
-//    private List<PassengerDTO> passengerDTOList = new ArrayList<>();
+    private User user; // Main user details
+    private List<OtherPassenger> additionalPassengers; // List of additional passengers
 
-    private String secondPassengerEmail;
-    private String secondPassengerName;
-    private String secondPassengerIdNumber;
-    private String secondPassengerPhoneNumber;
-    private int secondPassengerSeatNumber;
-    private Double secondPassengerFareAmount;
-
-
-    public BookingResponse(Long bookingId, String message, int bookedSeats, Double fareAmount, Double totalFareAmount, User user) {
+    public BookingResponse(String message, Long bookingId, int bookedSeat, Double fareAmount, Double totalFareAmount, User user, List<OtherPassenger> additionalPassengers) {
+       this.message = message;
         this.bookingId = bookingId;
-        this.message = message;
-        this.bookedSeats = bookedSeats;
+        this.bookedSeat = bookedSeat;
         this.fareAmount = fareAmount;
         this.totalFareAmount = totalFareAmount;
         this.user = user;
+        this.additionalPassengers = additionalPassengers; 
     }
 
+    public BookingResponse(String message) {
+        this.message = message;
+    }
 
-    public BookingResponse(String s) {
-        this.message = s;
+    public BookingResponse(String s, Long bookingId, int seatNumber, Double selectedFareFirst, Double totalFare, User foundUser) {
     }
 }

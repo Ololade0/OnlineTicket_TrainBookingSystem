@@ -25,8 +25,6 @@ public class Booking {
     @ManyToOne
     private User user;
 
-
-
     @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "train_class_id")
@@ -36,8 +34,8 @@ public class Booking {
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<Seat> seats = new ArrayList<>();
 
-//    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
-//    private Payment payment;
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
+    private BookingPayment bookingPayment;
 
     @ManyToOne
     @JsonManagedReference
