@@ -4,9 +4,12 @@ import OnlineBookingSystem.OnlineBookingSystem.model.enums.GenderType;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.util.List;
 
 
 @ToString
@@ -15,7 +18,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "otherPassengers")
+@Entity(name = "other")
 public class OtherPassenger {
 
         @Id
@@ -33,11 +36,21 @@ public class OtherPassenger {
         private int seatNumber;
         private IdentificationType identificationType;
 
-//
+        @JsonIgnore
         @ManyToOne
-        @JoinColumn(name = "user_id", nullable = false)
-        @JsonBackReference
+        @JoinColumn(name = "user_id")
         private User user;
+        @JsonIgnore
+        @ManyToOne
+        @JoinColumn(name = "booking_id", nullable = false)
+        private Booking booking;
+
+
+
+
+
+
+
 
 }
 

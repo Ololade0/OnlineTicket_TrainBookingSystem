@@ -35,7 +35,7 @@ public class ScheduleServiceImplementation implements ScheduleService {
     private final  TrainClassService trainClassService;
     private final TrainService trainService;
 
-    private final DistanceCalculatorService distanceCalculatorService;
+   private final DistanceCalculatorService distanceCalculatorService;
 
 
 
@@ -69,7 +69,7 @@ public class ScheduleServiceImplementation implements ScheduleService {
                 .departureDate(createSceduleDTO.getDepartureDate())
                 .fare(trainClass.getFare())
                 .train(train)
-                .distance(distanceCalculatorService.calculateDistance())
+//                .distance(distanceCalculatorService.calculateDistance())
                 .stations(stations)
                 .build();
 //        validateScheduleTimetable(departureStation.get(),arrivalStation.get(),createSceduleDTO.getScheduleType(),

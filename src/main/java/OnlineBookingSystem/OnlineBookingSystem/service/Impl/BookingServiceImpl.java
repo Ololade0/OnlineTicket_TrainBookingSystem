@@ -13,9 +13,12 @@ import OnlineBookingSystem.OnlineBookingSystem.service.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.mapping.Map;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -28,8 +31,6 @@ public class BookingServiceImpl implements BookingService {
     private final SeatService seatService;
     private final BookingRepository bookingRepository;
 
-
-    private final PaymentRepository paymentRepository;
     private final OtherPassengerRepository otherPassengerRepository;
 
 
@@ -48,15 +49,14 @@ public class BookingServiceImpl implements BookingService {
             throw new TrainClassCannotBeFoundException("Train class " + bookTrainDTO.getTrainClassName() + " not found");
         }
 
-        // Book seat for primary user
-        Seat bookedSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), bookTrainDTO.getSeatNumber());
         Schedule foundSchedule = scheduleService.findByScheduleId(bookTrainDTO.getScheduleId());
         Fare fare = foundTrainClass.getFare();
-
         if (fare == null) {
             throw new TrainClassCannotBeFoundException("Fare not found for train class: " + foundTrainClass.getClassName());
         }
 
+        // Book seat for primary user
+        Seat bookedSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), bookTrainDTO.getSeatNumber());
         Double primaryPassengerFare = getFareForPassengerType(bookTrainDTO.getPassengerType(), fare);
         Double totalFare = calculateTotalFare(bookTrainDTO, fare);
 
@@ -67,11 +67,13 @@ public class BookingServiceImpl implements BookingService {
                 .user(foundUser)
                 .schedule(foundSchedule)
                 .build();
-        bookingRepository.save(primaryBooking);
+        primaryBooking = bookingRepository.save(primaryBooking); // Save and reassign to get generated ID
+
+        if (primaryBooking.getBookingId() == null) {
+            throw new RuntimeException("Failed to save primary booking.");
+        }
 
         List<OtherPassenger> savedAdditionalPassengers = new ArrayList<>();
-
-        // Handle additional passengers
         if (bookTrainDTO.getAdditionalPassengers() != null) {
             for (OtherPassenger additionalPassenger : bookTrainDTO.getAdditionalPassengers()) {
                 Seat additionalSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), additionalPassenger.getSeatNumber());
@@ -85,32 +87,37 @@ public class BookingServiceImpl implements BookingService {
                         .phoneNumber(additionalPassenger.getPhoneNumber())
                         .idNumber(additionalPassenger.getIdNumber())
                         .identificationType(additionalPassenger.getIdentificationType())
-                        .user(foundUser) // Associate with primary user
+                        .passengerType(additionalPassenger.getPassengerType())
+                        .seatNumber(additionalSeat.getSeatNumber())
+                        .booking(primaryBooking) // Ensure this is set
+                        .user(foundUser)
                         .build();
                 otherPassengerRepository.save(savedPassenger);
                 savedAdditionalPassengers.add(savedPassenger);
-
-                // Create booking for additional passenger
-                Booking additionalBooking = Booking.builder()
-                        .fareAmount(additionalPassengerFare)
-                        .trainClass(foundTrainClass)
-                        .user(foundUser) // Use primary user for association
-                        .schedule(foundSchedule)
-                        .build();
-                bookingRepository.save(additionalBooking);
             }
         }
-
-        // Return success response
         return new BookingResponse(
                 "Booking successful",
                 primaryBooking.getBookingId(),
                 bookedSeat.getSeatNumber(),
                 primaryPassengerFare,
                 totalFare,
-                foundUser,
-                savedAdditionalPassengers);
+                User.builder()
+                        .id(foundUser.getId())
+                        .firstName(foundUser.getFirstName())
+                        .lastName(foundUser.getLastName())
+                        .email(foundUser.getEmail())
+                        // Exclude otherPassengers if they duplicate data
+                        .phoneNumber(foundUser.getPhoneNumber())
+                        .idNumber(foundUser.getIdNumber())
+                        .identificationType(foundUser.getIdentificationType())
+                        .build(),
+                savedAdditionalPassengers
+        );
     }
+
+
+
 
     private Double getFareForPassengerType(String passengerType, Fare fare) throws InvalidPassengerTypeException {
         if ("adult".equalsIgnoreCase(passengerType)) {

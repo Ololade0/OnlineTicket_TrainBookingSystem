@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class User extends AuditBaseEntity{
 
 
 
-    @JsonIgnore()
+    @JsonBackReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 
@@ -57,12 +58,9 @@ public class User extends AuditBaseEntity{
     private List<Notification> notifications;
 
 
-//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    private Set<Role> roleSet = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
-    @JsonManagedReference
-    private List<OtherPassenger> otherPassengers;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OtherPassenger> otherPassengers = new ArrayList<>();
 
 
 

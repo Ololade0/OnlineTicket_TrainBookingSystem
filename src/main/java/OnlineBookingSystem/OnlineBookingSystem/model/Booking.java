@@ -7,14 +7,12 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Setter
 @Getter
 @Builder
 @ToString(exclude = {"seats", "payment"})
 @Entity(name = "bookings")
 @AllArgsConstructor
-
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,13 +42,15 @@ public class Booking {
 
     private Double fareAmount;
 
+    private String passengerType;
 
 
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OtherPassenger> otherPassengers = new ArrayList<>();
 
     public Booking() {
         this.seats = new ArrayList<>();
     }
-
 
     public void addSeat(Seat seat) {
         if (this.seats == null) {

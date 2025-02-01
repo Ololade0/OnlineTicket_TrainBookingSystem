@@ -4,6 +4,7 @@ import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.BookingResponse;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidPassengerTypeException;
 import OnlineBookingSystem.OnlineBookingSystem.service.BookingService;
+import OnlineBookingSystem.OnlineBookingSystem.service.OtherPassengerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,11 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
+    @Autowired
+    private OtherPassengerService otherPassengerService;
+
+
+
 
     @PostMapping("/bookTrain")
     public ResponseEntity<BookingResponse> createBooking(@RequestBody BookTrainDTO bookTrainDTO) {
@@ -34,5 +40,11 @@ public class BookingController {
     }
 
 
+
+    @PostMapping("/book")
+    public void deleteBooking() {
+
+        otherPassengerService.deleteAll();
+    }
 
 }

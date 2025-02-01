@@ -1,6 +1,7 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
 import OnlineBookingSystem.OnlineBookingSystem.model.OtherPassenger;
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.OtherPassengerRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.OtherPassengerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class OtherPassengerServiceImpl implements OtherPassengerService {
             OtherPassenger otherPassenger1 = OtherPassenger.builder()
                     .name(otherPassenger.getName())
                     .gender(otherPassenger.getGender())
-                    .identificationType(otherPassenger.getIdentificationType())
+                    .identificationType(IdentificationType.valueOf(otherPassenger.getIdentificationType().toString()))
                     .phoneNumber(otherPassenger.getPhoneNumber())
                     .idNumber(otherPassenger.getIdNumber())
                     .email(otherPassenger.getEmail())
@@ -44,5 +45,10 @@ public class OtherPassengerServiceImpl implements OtherPassengerService {
 
            return null;
        });
+    }
+
+    @Override
+    public void deleteAll() {
+        otherPassengerRepository.deleteAll();
     }
 }

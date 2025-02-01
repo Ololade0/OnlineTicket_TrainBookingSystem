@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,10 +25,15 @@ public class StationController {
 
 
     @PostMapping("/create-station")
-    public ResponseEntity<?> createStation(@RequestBody Station createNewStation){
-        Station newStation= stationService.createNewStation(createNewStation);
-        return new ResponseEntity<>(newStation, HttpStatus.CREATED);
+    public ResponseEntity<?> createStation(@RequestBody @Validated Station createNewStation) {
+        try {
+            Station newStation = stationService.createNewStation(createNewStation);
+            return new ResponseEntity<>(newStation, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
+
     @GetMapping("/{stationId}")
     public ResponseEntity<?>findStationById(@PathVariable Long stationId){
         Station foundStation = stationService.findStationById(stationId);

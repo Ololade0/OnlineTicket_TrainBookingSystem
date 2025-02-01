@@ -36,11 +36,9 @@ public class UserServiceImpl implements UserService {
                 .password(user.getPassword())
                 .idNumber(user.getIdNumber())
                 .confirmPassword(user.getConfirmPassword())
-//                .idNumber(user.getIdNumber())
-//                .roleSet(new HashSet<>())
+
                 .build();
-//        RoleType roleType = RoleType.USER_ROLE;
-//        signupUser.getRoleSet().add(new Role(roleType));
+
         log.info("User Details: {}", signupUser);
         userRepository.save(signupUser);
         return getSignUpUserResponse(signupUser);
