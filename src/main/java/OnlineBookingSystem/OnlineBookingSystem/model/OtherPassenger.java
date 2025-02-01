@@ -35,6 +35,7 @@ public class OtherPassenger {
         private String passengerType;
         private int seatNumber;
         private IdentificationType identificationType;
+//        private
 
         @JsonIgnore
         @ManyToOne

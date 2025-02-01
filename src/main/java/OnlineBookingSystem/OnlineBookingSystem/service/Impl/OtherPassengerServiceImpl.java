@@ -1,6 +1,8 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
-import OnlineBookingSystem.OnlineBookingSystem.model.OtherPassenger;
+import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidPassengerTypeException;
+import OnlineBookingSystem.OnlineBookingSystem.model.*;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.OtherPassengerRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.OtherPassengerService;
@@ -38,6 +40,9 @@ public class OtherPassengerServiceImpl implements OtherPassengerService {
 
         return savedPassengers;
     }
+
+
+
 
     @Override
     public OtherPassenger findByEmailOrNull(String email) {

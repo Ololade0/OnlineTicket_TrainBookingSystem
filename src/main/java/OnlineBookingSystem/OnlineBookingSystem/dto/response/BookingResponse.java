@@ -4,12 +4,13 @@ import OnlineBookingSystem.OnlineBookingSystem.model.OtherPassenger;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Setter
 @Getter
 @Builder
-@AllArgsConstructor
+@ToString
 @NoArgsConstructor
 public class BookingResponse {
     private Long bookingId;
@@ -18,22 +19,26 @@ public class BookingResponse {
     private Double fareAmount;
     private Double totalFareAmount;
     private User user; // Main user details
-    private List<OtherPassenger> additionalPassengers; // List of additional passengers
+    private LocalDateTime bookingDate;
 
-    public BookingResponse(String message, Long bookingId, int bookedSeat, Double fareAmount, Double totalFareAmount, User user, List<OtherPassenger> additionalPassengers) {
-       this.message = message;
+
+    private List<OtherPassenger> additionalPassengers; // List of additional passengers
+    private String approvalUrl;
+
+    public BookingResponse(Long bookingId, String message, int bookedSeat, Double fareAmount, Double totalFareAmount,
+                           User user, LocalDateTime bookingDate, List<OtherPassenger> additionalPassengers, String approvalUrl) {
         this.bookingId = bookingId;
+        this.message = message;
         this.bookedSeat = bookedSeat;
         this.fareAmount = fareAmount;
         this.totalFareAmount = totalFareAmount;
         this.user = user;
-        this.additionalPassengers = additionalPassengers; 
+        this.bookingDate = bookingDate;
+        this.additionalPassengers = additionalPassengers;
+        this.approvalUrl = approvalUrl;
     }
 
-    public BookingResponse(String message) {
-        this.message = message;
-    }
-
-    public BookingResponse(String s, Long bookingId, int seatNumber, Double selectedFareFirst, Double totalFare, User foundUser) {
+    public BookingResponse(String s) {
+        this.message = s;
     }
 }
