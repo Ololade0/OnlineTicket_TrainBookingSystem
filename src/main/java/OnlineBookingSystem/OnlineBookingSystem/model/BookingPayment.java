@@ -30,8 +30,8 @@ public class BookingPayment {
     private String transactionReference;
     private LocalDateTime paymentDate;
     private String currency;
-    private String intent;
-    private String description;
+//    private String intent;
+//    private String description;
     private String cancelUrl;
     private String successUrl;
 

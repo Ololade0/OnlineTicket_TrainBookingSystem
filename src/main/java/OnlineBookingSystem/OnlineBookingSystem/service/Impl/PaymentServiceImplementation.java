@@ -5,11 +5,14 @@ import OnlineBookingSystem.OnlineBookingSystem.dto.request.PaymentRequest;
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.PaymentHistoryResponse;
 import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
 import OnlineBookingSystem.OnlineBookingSystem.model.BookingPayment;
+import OnlineBookingSystem.OnlineBookingSystem.model.User;
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.Currency;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentMethod;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentStatus;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.BookingRepository;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.PaymentRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.PaymentService;
+import ch.qos.logback.core.testUtil.RandomUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paypal.api.payments.*;
@@ -34,10 +37,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,17 +64,19 @@ public class PaymentServiceImplementation implements PaymentService {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	private final BookingRepository bookingRepository;
+	private final String cancelUrl = "http://localhost:8080/api/payments/pay/cancel";
+	private final String sucessUrl = "http://localhost:8080/api/payments/pay/success";
 
 
 
 
 
-	public String paymentProcessings(Double totalFare,String email, PaymentMethod paymentMethod) throws IOException {
+	public String paymentProcessings(Double totalFare,  User user, Booking booking,String email, PaymentMethod paymentMethod) throws IOException {
 		String approvalUrl = null;
 
 		switch (paymentMethod) {
 			case PAYPAL:
-				approvalUrl = processPaypalPayment(totalFare);
+				approvalUrl = processPaypalPayment(totalFare, user, booking);
 				break;
 			case STRIPE:
 				approvalUrl = processStripePayment(totalFare);
@@ -90,27 +93,42 @@ public class PaymentServiceImplementation implements PaymentService {
 
 
 		//PAYPAL PAYMENT INTEGRATION
-	private String processPaypalPayment(Double totalFare) {
+	private String processPaypalPayment(Double totalFare, User user, Booking booking) {
 		String approvalUrl;
 		try {
 			// Prepare the payment request
 			PaymentRequest paymentRequest = new PaymentRequest();
-			paymentRequest.setCurrency("EUR");
+			paymentRequest.setCurrency(Currency.EUR);
 			paymentRequest.setTotal(totalFare);
 			paymentRequest.setPaymentMethod(PaymentMethod.PAYPAL);
 			paymentRequest.setDescription("Train ticket booking");
 			paymentRequest.setIntent("sale");
-			paymentRequest.setCancelUrl("http://localhost:8080/api/payments/pay/cancel");
-			paymentRequest.setSuccessUrl("http://localhost:8080/api/payments/pay/success");
+			paymentRequest.setCancelUrl(cancelUrl);
+			paymentRequest.setSuccessUrl(sucessUrl);
 
+			// Create PayPal Payment
 			Payment payment = createPaypalPayment(paymentRequest);
 
-
+			// Extract approval URL
 			approvalUrl = payment.getLinks().stream()
 					.filter(link -> "approval_url".equals(link.getRel()))
 					.findFirst()
 					.map(com.paypal.api.payments.Links::getHref)
 					.orElseThrow(() -> new RuntimeException("Approval URL not found in the payment response."));
+
+			String transactionReference = payment.getId();
+
+			BookingPayment bookingPayment = BookingPayment.builder()
+					.paymentDate(LocalDateTime.now())
+					.totalPrice(totalFare)
+					.paymentStatus(PaymentStatus.PENDING)
+					.transactionReference(transactionReference) // Store PayPal paymentId
+					.currency(String.valueOf(paymentRequest.getCurrency()))
+					.user(user)
+					.booking(booking)
+					.build();
+
+			paymentRepository.save(bookingPayment);
 		} catch (PayPalRESTException e) {
 			throw new RuntimeException("Payment failed: " + e.getMessage());
 		}
@@ -118,13 +136,15 @@ public class PaymentServiceImplementation implements PaymentService {
 		if (approvalUrl == null) {
 			throw new RuntimeException("Approval URL not found. Payment creation might have failed.");
 		}
+
 		return approvalUrl;
 	}
 
 
+
 	private Payment createPaypalPayment(PaymentRequest paymentRequest) throws PayPalRESTException {
 		Amount amount = new Amount();
-		amount.setCurrency(paymentRequest.getCurrency());
+		amount.setCurrency(String.valueOf(paymentRequest.getCurrency()));
 		amount.setTotal(String.valueOf(paymentRequest.getTotal()));
 
 		Transaction transaction = new Transaction();
@@ -156,8 +176,32 @@ public class PaymentServiceImplementation implements PaymentService {
 		payment.setId(paymentId);
 		PaymentExecution paymentExecution = new PaymentExecution();
 		paymentExecution.setPayerId(payerId);
-		return payment.execute(apiContext, paymentExecution);
+
+		// Execute the payment
+		Payment executedPayment = payment.execute(apiContext, paymentExecution);
+		log.info("Executed Payment State: " + executedPayment.getState());
+
+		// Check the payment status and update your database accordingly
+		if ("approved".equalsIgnoreCase(executedPayment.getState())) {
+			BookingPayment bookingPayment = paymentRepository.findBytransactionReference(executedPayment.getId());
+			if (bookingPayment != null) {
+				bookingPayment.setPaymentStatus(PaymentStatus.COMPLETED);
+				bookingPayment.setSuccessUrl(sucessUrl);
+				paymentRepository.save(bookingPayment);
+				log.info(("Payment status updated to COMPLETED."));
+
+			}
+		}
+	   else if ("pending".equalsIgnoreCase(executedPayment.getState())) {
+			log.info("Payment is pending: " + executedPayment.getState());
 	}
+	   else {
+		log.info("Payment was not successful: " + executedPayment.getState());
+		throw new RuntimeException("Payment was not successful: " + executedPayment.getState());
+	}
+
+    return executedPayment;
+}
 
 
 	//PAYSTACK PAYMENT INTEGRATION

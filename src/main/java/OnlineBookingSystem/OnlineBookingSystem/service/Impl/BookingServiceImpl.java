@@ -71,7 +71,8 @@ public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPa
     Double primaryPassengerFare = getFareForPassengerType(bookTrainDTO.getPassengerType(), fare);
     Double totalFare = calculateTotalFare(bookTrainDTO, fare);
 
-    String approvalUrl = paymentService.paymentProcessings(totalFare,foundUser.getEmail(), bookTrainDTO.getPaymentMethod());
+//    String approvalUrl = paymentService.paymentProcessings(totalFare,foundUser.getId(), foundUser.getEmail(), bookTrainDTO.getPaymentMethod());
+//    paymentProcessings(Double totalFare, Long userId, Long bookingId,String email, PaymentMethod paymentMethod)
 
     // Create primary booking
     Booking primaryBooking = Booking.builder()
@@ -82,6 +83,9 @@ public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPa
             .schedule(foundSchedule)
             .build();
     primaryBooking = bookingRepository.save(primaryBooking);
+
+    String approvalUrl = paymentService.paymentProcessings(totalFare,foundUser, primaryBooking, foundUser.getEmail(), bookTrainDTO.getPaymentMethod());
+
 
     if (primaryBooking.getBookingId() == null) {
         throw new RuntimeException("Failed to save primary booking.");
