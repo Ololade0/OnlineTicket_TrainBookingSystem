@@ -10,19 +10,23 @@ import OnlineBookingSystem.OnlineBookingSystem.model.*;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentMethod;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.BookingRepository;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.OtherPassengerRepository;
-import OnlineBookingSystem.OnlineBookingSystem.repositories.PaymentRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.*;
 
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -35,12 +39,13 @@ public class BookingServiceImpl implements BookingService {
     private final SeatService seatService;
     private final BookingRepository bookingRepository;
     private final PaymentService paymentService;
-//    private final OtherPassengerService otherPassengerService;
+
 
 
     private final OtherPassengerRepository otherPassengerRepository;
 
-public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPassengerTypeException {
+
+public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPassengerTypeException, IOException {
     log.debug("Starting createBooking for user: {}", bookTrainDTO.getUserEmail());
 
     // Validate user
@@ -66,7 +71,7 @@ public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPa
     Double primaryPassengerFare = getFareForPassengerType(bookTrainDTO.getPassengerType(), fare);
     Double totalFare = calculateTotalFare(bookTrainDTO, fare);
 
-    String approvalUrl = paymentProcessing(totalFare);
+    String approvalUrl = paymentService.paymentProcessings(totalFare,foundUser.getEmail(), bookTrainDTO.getPaymentMethod());
 
     // Create primary booking
     Booking primaryBooking = Booking.builder()
@@ -82,42 +87,11 @@ public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPa
         throw new RuntimeException("Failed to save primary booking.");
     }
     List<OtherPassenger> savedAdditionalPassengers = bookTrainForOtherPassengers(bookTrainDTO, foundUser, fare, primaryBooking);
+
     return getBookingResponse(foundUser, bookedSeat, primaryPassengerFare, totalFare, primaryBooking, savedAdditionalPassengers, primaryBooking.getBookingDate(), approvalUrl);
 }
 
-    private String paymentProcessing(Double totalFare) {
-        String approvalUrl;
-        try {
-            // Prepare the payment request
-            PaymentRequest paymentRequest = new PaymentRequest();
-            paymentRequest.setCurrency("USD");
-            paymentRequest.setTotal(totalFare);
-            paymentRequest.setPaymentMethod(PaymentMethod.PAYPAL);
-            paymentRequest.setDescription("Train ticket booking");
-            paymentRequest.setIntent("sale");
-            paymentRequest.setCancelUrl("http://localhost:8080/api/payments/pay/cancel");
-            paymentRequest.setSuccessUrl("http://localhost:8080/api/payments/pay/success");
 
-            // Create payment and get the response
-            Payment payment = paymentService.createPayment(paymentRequest);
-            log.debug("Payment object: {}", payment);
-
-            // Extract the approval URL from the response
-            approvalUrl = payment.getLinks().stream()
-                    .filter(link -> "approval_url".equals(link.getRel()))
-                    .findFirst()
-                    .map(com.paypal.api.payments.Links::getHref)
-                    .orElseThrow(() -> new RuntimeException("Approval URL not found in the payment response."));
-        } catch (PayPalRESTException e) {
-            log.error("Payment failed: {}", e.getMessage());
-            throw new RuntimeException("Payment failed: " + e.getMessage());
-        }
-
-        if (approvalUrl == null) {
-            throw new RuntimeException("Approval URL not found. Payment creation might have failed.");
-        }
-        return approvalUrl;
-    }
 
     private static BookingResponse getBookingResponse(
             User foundUser,
@@ -145,7 +119,7 @@ public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPa
                         .build(),
                 bookingDate,
                 savedAdditionalPassengers,
-                "Approval url" + approvalUrl
+                 approvalUrl
         );
     }
 
@@ -167,7 +141,7 @@ public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPa
                         .identificationType(additionalPassenger.getIdentificationType())
                         .passengerType(additionalPassenger.getPassengerType())
                         .seatNumber(additionalSeat.getSeatNumber())
-                        .booking(primaryBooking) // Ensure this is set
+                        .booking(primaryBooking)
                         .user(foundUser)
                         .build();
                 otherPassengerRepository.save(savedPassenger);

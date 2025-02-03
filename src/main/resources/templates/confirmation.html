@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Payment Confirmation</title>
+</head>
+<body>
+<h1>Payment Confirmation</h1>
+<div id="payment-result">
+  <p th:text="'Payment successful! Total amount: $' + ${totalFare} + '. PaymentIntent ID: ' + ${paymentIntentId}"></p>
+</div>
+</body>
+</html>

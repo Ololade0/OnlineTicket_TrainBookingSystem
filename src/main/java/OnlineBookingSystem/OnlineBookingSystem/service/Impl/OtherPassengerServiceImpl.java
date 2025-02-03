@@ -20,6 +20,7 @@ public class OtherPassengerServiceImpl implements OtherPassengerService {
 
 
 
+
     @Override
     public List<OtherPassenger> addNewPassengers(List<OtherPassenger> otherPassengers) {
         List<OtherPassenger> savedPassengers = new ArrayList<>();
@@ -39,6 +40,35 @@ public class OtherPassengerServiceImpl implements OtherPassengerService {
         }
 
         return savedPassengers;
+    }
+
+
+    public List<OtherPassenger> bookTrainForOtherPassengers(BookTrainDTO bookTrainDTO) {
+        List<OtherPassenger> savedAdditionalPassengers = new ArrayList<>();
+        if (bookTrainDTO.getAdditionalPassengers() != null) {
+            for (OtherPassenger additionalPassenger : bookTrainDTO.getAdditionalPassengers()) {
+//                Seat additionalSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), additionalPassenger.getSeatNumber());
+//                Double additionalPassengerFare = getFareForPassengerType(additionalPassenger.getPassengerType(), fare);
+
+                // Save additional passenger
+                OtherPassenger savedPassenger = OtherPassenger.builder()
+                        .name(additionalPassenger.getName())
+                        .email(additionalPassenger.getEmail())
+                        .gender(additionalPassenger.getGender())
+                        .phoneNumber(additionalPassenger.getPhoneNumber())
+                        .idNumber(additionalPassenger.getIdNumber())
+                        .identificationType(additionalPassenger.getIdentificationType())
+                        .passengerType(additionalPassenger.getPassengerType())
+//                        .seatNumber(additionalSeat.getSeatNumber())
+//                        .booking(primaryBooking) // Ensure this is set
+//                        .user(foundUser)
+                        .build();
+                otherPassengerRepository.save(savedPassenger);
+                savedAdditionalPassengers.add(savedPassenger);
+            }
+        }
+
+        return savedAdditionalPassengers;
     }
 
 

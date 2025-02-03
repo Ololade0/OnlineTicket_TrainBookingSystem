@@ -2,5 +2,8 @@ package OnlineBookingSystem.OnlineBookingSystem.model.enums;
 
 public enum PaymentMethod{
 
-    DEBIT_CARD, CREDIT_CARD, TRANSFER, PAYPAL
+    PAYPAL,
+    STRIPE,
+    PAYSTACK,
+    BANK_TRANSFER
 }

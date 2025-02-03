@@ -32,11 +32,24 @@ public class PaypalConfig {
 		return new OAuthTokenCredential(clientId, clientSecret, paypalSdkConfig());
 	}
 
+//	@Bean
+//	public APIContext apiContext() throws PayPalRESTException {
+//		APIContext context = new APIContext(oAuthTokenCredential().getAccessToken());
+//		context.setConfigurationMap(paypalSdkConfig());
+//		return context;
+//	}
+
 	@Bean
-	public APIContext apiContext() throws PayPalRESTException {
-		APIContext context = new APIContext(oAuthTokenCredential().getAccessToken());
-		context.setConfigurationMap(paypalSdkConfig());
-		return context;
+	public APIContext apiContext() {
+		try {
+			APIContext context = new APIContext(oAuthTokenCredential().getAccessToken());
+			context.setConfigurationMap(paypalSdkConfig());
+			return context;
+		} catch (PayPalRESTException e) {
+			// Log the exception for debugging
+			throw new RuntimeException("Failed to create APIContext: " + e.getMessage(), e);
+		}
 	}
+
 
 }

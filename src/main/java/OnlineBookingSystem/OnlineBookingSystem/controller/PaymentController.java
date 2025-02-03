@@ -1,21 +1,21 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.PaymentHistoryResponse;
-
+import OnlineBookingSystem.OnlineBookingSystem.dto.request.PaymentRequest;
 import OnlineBookingSystem.OnlineBookingSystem.service.PaymentService;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/api/payments")
@@ -23,42 +23,30 @@ public class PaymentController {
 
 	@Autowired
     private PaymentService paymentService;
+	@Value("${stripe.api.key}")
+	private String stripeApiKey;
 
-	public static final String SUCCESS_URL = "pay/success";
-	public static final String CANCEL_URL = "pay/cancel";
 
 	@GetMapping("/")
 	public String home() {
 		return "home";
 	}
 
-
-//	@GetMapping(value = CANCEL_URL)
-//	public String cancelPay() {
-//		return "cancel";
-//	}
-@GetMapping(value = CANCEL_URL)
-public ResponseEntity<String> cancelPay() {
-	// Generate a cancellation response
+@GetMapping("/pay/cancel")
+public ResponseEntity<String> cancelPaymentTransaction() {
 	String responseHtml = generateCancelResponse();
 	return ResponseEntity.ok()
 			.contentType(MediaType.TEXT_HTML)
 			.body(responseHtml);
 }
 
-	private String generateCancelResponse() {
-		return "<html><body><h1>Payment Canceled</h1>" +
-				"<p>Your payment has been canceled successfully.</p>" +
-				"<p>If you have any questions, please contact support.</p>" +
-				"<a href=\"/\">Return to Home</a>" +
-				"</body></html>";
-	}
-		@GetMapping(value = SUCCESS_URL)
-	public ResponseEntity<String> successPay(@RequestParam("paymentId") String paymentId,
+
+		@GetMapping("pay/success")
+	public ResponseEntity<String> successPayForPayPal(@RequestParam("paymentId") String paymentId,
 											 @RequestParam("PayerID") String payerId) {
 		try {
 			// Execute the payment
-			Payment payment = paymentService.executePayment(paymentId, payerId);
+			Payment payment = paymentService.executePaypalPayment(paymentId, payerId);
 			System.out.println(payment.toJSON());
 
 			if ("approved".equals(payment.getState())) {
@@ -76,6 +64,54 @@ public ResponseEntity<String> cancelPay() {
 		}
 	}
 
+
+
+
+
+	@GetMapping("/create-payment-intent")
+	public String createPaymentIntentForStripe(@RequestParam Double totalFare, Model model) {
+		System.out.println("Total Fare: " + totalFare); // Debug statement
+		String clientSecret = paymentService.processStripePayment(totalFare);
+		model.addAttribute("clientSecret", clientSecret);
+		return "checkout";
+	}
+
+	@PostMapping("/pay")
+	public ResponseEntity<?> processPaymentForPayStack(@RequestBody PaymentRequest request) {
+		try {
+			String response = paymentService.processPaystackPayment(request.getEmail(), request.getTotal());
+			return ResponseEntity.ok(response);
+		} catch (IOException e) {
+			return ResponseEntity.status(500).body("Payment Initialization Failed");
+		}
+	}
+
+	@GetMapping("/verify/{reference}")
+	public ResponseEntity<?> verifyPaymentForPayStack(@PathVariable String reference) {
+		try {
+			String response = paymentService.verifyPaystackPaymentTransaction(reference);
+			return ResponseEntity.ok(response);
+		} catch (IOException e) {
+			return ResponseEntity.status(500).body("Payment Verification Failed: " + e.getMessage());
+		}
+	}
+
+	@PostMapping("/paystack/webhook")
+	public ResponseEntity<String> handleWebhookForPayStack(@RequestBody Map<String, Object> payload) {
+		System.out.println("Received Webhook: " + payload);
+		return ResponseEntity.ok("Webhook received");
+	}
+
+
+	private String generateCancelResponse() {
+		return "<html><body><h1>Payment Canceled</h1>" +
+				"<p>Your payment has been canceled successfully.</p>" +
+				"<p>If you have any questions, please contact support.</p>" +
+				"<a href=\"/\">Return to Home</a>" +
+				"</body></html>";
+	}
+
+
 	private String generateSuccessResponse(String paymentId, String payerId) {
 		return "<html><body><h1>Payment Successful!</h1>" +
 				"<p>Payment ID: " + paymentId + "</p>" +
@@ -84,10 +120,5 @@ public ResponseEntity<String> cancelPay() {
 
 
 
-	@GetMapping("/history")
-	public ResponseEntity<?> getPaymentHistory(@RequestParam Long userId) {
-		List<PaymentHistoryResponse> paymentHistory = paymentService.getPaymentHistory(userId);
-		return ResponseEntity.ok(paymentHistory);
-	}
-
 }
+

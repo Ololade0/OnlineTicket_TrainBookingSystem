@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentRequest {
+    private String email;
     private Double total;
     private String currency;
     private PaymentMethod paymentMethod;

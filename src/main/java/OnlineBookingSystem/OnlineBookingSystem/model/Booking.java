@@ -1,5 +1,6 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,6 +47,8 @@ public class Booking {
     private Double fareAmount;
 
     private String passengerType;
+
+//    private PaymentStatus paymentStatus;
 
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)

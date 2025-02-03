@@ -2,6 +2,7 @@ package OnlineBookingSystem.OnlineBookingSystem.dto.request;
 
 import OnlineBookingSystem.OnlineBookingSystem.model.OtherPassenger;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentMethod;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -21,5 +22,6 @@ public class BookTrainDTO {
     private String passengerType;
     private int seatNumber;
    private List<OtherPassenger> additionalPassengers = new ArrayList<>();
+   private PaymentMethod paymentMethod;
 
 }
