@@ -1,8 +1,8 @@
+
+
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
-
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.PaymentRequest;
-import OnlineBookingSystem.OnlineBookingSystem.dto.response.PaymentHistoryResponse;
 import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
 import OnlineBookingSystem.OnlineBookingSystem.model.BookingPayment;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
@@ -21,7 +21,6 @@ import com.paypal.base.rest.PayPalRESTException;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
-import com.stripe.model.TODO;
 import com.stripe.param.PaymentIntentCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,18 +38,16 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImplementation implements PaymentService {
-
 	@Autowired
 	private APIContext apiContext;
 
 	@Autowired
-	PaymentRepository paymentRepository;
+	private PaymentRepository paymentRepository;
 
 	@Value("${stripe.api.key}")
 	private String stripeApiKey;
@@ -62,16 +59,12 @@ public class PaymentServiceImplementation implements PaymentService {
 	private String baseUrl;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
-
 	private final BookingRepository bookingRepository;
+
 	private final String cancelUrl = "http://localhost:8080/api/payments/pay/cancel";
-	private final String sucessUrl = "http://localhost:8080/api/payments/pay/success";
+	private final String successUrl = "http://localhost:8080/api/payments/pay/success";
 
-
-
-
-
-	public String paymentProcessings(Double totalFare,  User user, Booking booking,String email, PaymentMethod paymentMethod) throws IOException {
+	public String paymentProcessings(Double totalFare, User user, Booking booking, String email, PaymentMethod paymentMethod) throws IOException {
 		String approvalUrl = null;
 
 		switch (paymentMethod) {
@@ -82,17 +75,15 @@ public class PaymentServiceImplementation implements PaymentService {
 				approvalUrl = processStripePayment(totalFare);
 				break;
 			case PAYSTACK:
-				approvalUrl = processPaystackPayment(email,totalFare);
+				approvalUrl = processPaystackPayment(email, totalFare);
 				break;
-
 			default:
 				throw new IllegalArgumentException("Unsupported payment method: " + paymentMethod);
 		}
 		return approvalUrl;
 	}
 
-
-		//PAYPAL PAYMENT INTEGRATION
+	// PAYPAL PAYMENT INTEGRATION
 	private String processPaypalPayment(Double totalFare, User user, Booking booking) {
 		String approvalUrl;
 		try {
@@ -104,7 +95,7 @@ public class PaymentServiceImplementation implements PaymentService {
 			paymentRequest.setDescription("Train ticket booking");
 			paymentRequest.setIntent("sale");
 			paymentRequest.setCancelUrl(cancelUrl);
-			paymentRequest.setSuccessUrl(sucessUrl);
+			paymentRequest.setSuccessUrl(successUrl);
 
 			// Create PayPal Payment
 			Payment payment = createPaypalPayment(paymentRequest);
@@ -117,17 +108,15 @@ public class PaymentServiceImplementation implements PaymentService {
 					.orElseThrow(() -> new RuntimeException("Approval URL not found in the payment response."));
 
 			String transactionReference = payment.getId();
-
 			BookingPayment bookingPayment = BookingPayment.builder()
 					.paymentDate(LocalDateTime.now())
 					.totalPrice(totalFare)
 					.paymentStatus(PaymentStatus.PENDING)
-					.transactionReference(transactionReference) // Store PayPal paymentId
+					.transactionReference(transactionReference)
 					.currency(String.valueOf(paymentRequest.getCurrency()))
 					.user(user)
 					.booking(booking)
 					.build();
-
 			paymentRepository.save(bookingPayment);
 		} catch (PayPalRESTException e) {
 			throw new RuntimeException("Payment failed: " + e.getMessage());
@@ -139,8 +128,6 @@ public class PaymentServiceImplementation implements PaymentService {
 
 		return approvalUrl;
 	}
-
-
 
 	private Payment createPaypalPayment(PaymentRequest paymentRequest) throws PayPalRESTException {
 		Amount amount = new Amount();
@@ -165,11 +152,9 @@ public class PaymentServiceImplementation implements PaymentService {
 		redirectUrls.setCancelUrl(paymentRequest.getCancelUrl());
 		redirectUrls.setReturnUrl(paymentRequest.getSuccessUrl());
 		newPayment.setRedirectUrls(redirectUrls);
+
 		return newPayment.create(apiContext);
 	}
-
-
-
 
 	public Payment executePaypalPayment(String paymentId, String payerId) throws PayPalRESTException {
 		Payment payment = new Payment();
@@ -181,30 +166,25 @@ public class PaymentServiceImplementation implements PaymentService {
 		Payment executedPayment = payment.execute(apiContext, paymentExecution);
 		log.info("Executed Payment State: " + executedPayment.getState());
 
-		// Check the payment status and update your database accordingly
+		// Update payment status
 		if ("approved".equalsIgnoreCase(executedPayment.getState())) {
 			BookingPayment bookingPayment = paymentRepository.findBytransactionReference(executedPayment.getId());
 			if (bookingPayment != null) {
 				bookingPayment.setPaymentStatus(PaymentStatus.COMPLETED);
-				bookingPayment.setSuccessUrl(sucessUrl);
+				bookingPayment.setSuccessUrl(successUrl);
+				bookingPayment.setPaymentMethod(PaymentMethod.PAYPAL);
 				paymentRepository.save(bookingPayment);
-				log.info(("Payment status updated to COMPLETED."));
-
+				log.info("Payment status updated to COMPLETED.");
 			}
+		} else {
+			log.info("Payment was not successful: " + executedPayment.getState());
+			throw new RuntimeException("Payment was not successful: " + executedPayment.getState());
 		}
-	   else if ("pending".equalsIgnoreCase(executedPayment.getState())) {
-			log.info("Payment is pending: " + executedPayment.getState());
-	}
-	   else {
-		log.info("Payment was not successful: " + executedPayment.getState());
-		throw new RuntimeException("Payment was not successful: " + executedPayment.getState());
+
+		return executedPayment;
 	}
 
-    return executedPayment;
-}
-
-
-	//PAYSTACK PAYMENT INTEGRATION
+	// PAYSTACK PAYMENT INTEGRATION
 	public String processPaystackPayment(String email, Double amount) throws IOException {
 		String url = baseUrl + "/transaction/initialize";
 
@@ -231,71 +211,56 @@ public class PaymentServiceImplementation implements PaymentService {
 		}
 	}
 
-public String verifyPaystackPaymentTransaction(String reference) throws IOException {
-	String url = baseUrl + "/transaction/verify/" + reference;
-	log.info("Verifying Paystack payment with reference: {}", reference);
+	public String verifyPaystackPaymentTransaction(String reference) throws IOException {
+		String url = baseUrl + "/transaction/verify/" + reference;
+		log.info("Verifying Paystack payment with reference: {}", reference);
 
-	try (CloseableHttpClient client = HttpClients.createDefault()) {
-		HttpGet request = new HttpGet(url);
-		request.setHeader("Authorization", "Bearer " + secretKey);
-		request.setHeader("Content-Type", "application/json");
+		try (CloseableHttpClient client = HttpClients.createDefault()) {
+			HttpGet request = new HttpGet(url);
+			request.setHeader("Authorization", "Bearer " + secretKey);
+			request.setHeader("Content-Type", "application/json");
 
-		try (CloseableHttpResponse response = client.execute(request)) {
-			String jsonResponse = new String(response.getEntity().getContent().readAllBytes());
-			log.info("Paystack verification response: {}", jsonResponse);
+			try (CloseableHttpResponse response = client.execute(request)) {
+				String jsonResponse = new String(response.getEntity().getContent().readAllBytes());
+				log.info("Paystack verification response: {}", jsonResponse);
 
-			if (response.getCode() == HttpStatus.OK.value()) {
-				JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-				String status = jsonNode.get("data").get("status").asText();
+				if (response.getCode() == HttpStatus.OK.value()) {
+					JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+					String status = jsonNode.get("data").get("status").asText();
 
-				if ("success".equalsIgnoreCase(status)) {
-					String email = jsonNode.get("data").get("customer").get("email").asText();
-
-					Booking booking = bookingRepository.findByUser_Email(email);
-					if (booking != null) {
-						booking.getBookingPayment().setPaymentStatus(PaymentStatus.COMPLETED);
-//						booking.setPaymentStatus(PaymentStatus.COMPLETED);
-						bookingRepository.save(booking);
-						log.info("Booking updated to PAID for user: {}", email);
+					if ("success".equalsIgnoreCase(status)) {
+						String email = jsonNode.get("data").get("customer").get("email").asText();
+						Booking booking = bookingRepository.findByUser_Email(email);
+						if (booking != null) {
+							booking.getBookingPayment().setPaymentStatus(PaymentStatus.COMPLETED);
+							bookingRepository.save(booking);
+							log.info("Booking updated to PAID for user: {}", email);
+						}
+						return "Payment Successful";
+					} else {
+						return "Payment Verification Failed: Payment was not successful";
 					}
-					return "Payment Successful";
 				} else {
-					return "Payment Verification Failed: Payment was not successful";
+					return "Error: Unable to verify payment, response code " + response.getCode();
 				}
-			} else {
-				return "Error: Unable to verify payment, response code " + response.getCode();
 			}
 		}
 	}
-}
 
 
-
-
-//STRIPE  PAYMENT INTEGRATION
-
+	// STRIPE PAYMENT INTEGRATION
 	public String processStripePayment(Double totalFare) {
 		try {
 			Stripe.apiKey = stripeApiKey;
-			PaymentIntentCreateParams params =
-					PaymentIntentCreateParams.builder()
-							.setAmount((long) (totalFare * 100))
-							.setCurrency("usd")
-							.setDescription("Train ticket booking")
-							.build();
+			PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+					.setAmount((long) (totalFare * 100))
+					.setCurrency("usd")
+					.setDescription("Train ticket booking")
+					.build();
 			PaymentIntent intent = PaymentIntent.create(params);
 			return intent.getClientSecret();
 		} catch (StripeException e) {
 			throw new RuntimeException("Stripe payment failed: " + e.getMessage());
 		}
 	}
-
-
-
-
-
-
-
-
-
 }
