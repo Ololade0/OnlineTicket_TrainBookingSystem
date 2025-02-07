@@ -2,6 +2,9 @@ package OnlineBookingSystem.OnlineBookingSystem.controller;
 
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.PaymentRequest;
+import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.PayPalService;
+import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.PayStackService;
+import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.StripeService;
 import OnlineBookingSystem.OnlineBookingSystem.service.PaymentService;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
@@ -22,7 +25,15 @@ import java.util.Map;
 public class PaymentController {
 
 	@Autowired
-    private PaymentService paymentService;
+    private PayPalService payPalService;
+
+	@Autowired
+	private PayStackService payStackService;
+
+	@Autowired
+	private StripeService stripeService;
+
+
 	@Value("${stripe.api.key}")
 	private String stripeApiKey;
 
@@ -46,7 +57,7 @@ public ResponseEntity<String> cancelPaymentTransaction() {
 											 @RequestParam("PayerID") String payerId) {
 		try {
 			// Execute the payment
-			Payment payment = paymentService.executePaypalPayment(paymentId, payerId);
+			Payment payment = payPalService.executePaypalPayment(paymentId, payerId);
 			System.out.println(payment.toJSON());
 
 			if ("approved".equals(payment.getState())) {
@@ -71,7 +82,7 @@ public ResponseEntity<String> cancelPaymentTransaction() {
 	@GetMapping("/create-payment-intent")
 	public String createPaymentIntentForStripe(@RequestParam Double totalFare, Model model) {
 		System.out.println("Total Fare: " + totalFare); // Debug statement
-		String clientSecret = paymentService.processStripePayment(totalFare);
+		String clientSecret = stripeService.processStripePayment(totalFare);
 		model.addAttribute("clientSecret", clientSecret);
 		return "checkout";
 	}
@@ -79,17 +90,19 @@ public ResponseEntity<String> cancelPaymentTransaction() {
 	@PostMapping("/pay")
 	public ResponseEntity<?> processPaymentForPayStack(@RequestBody PaymentRequest request) {
 		try {
-			String response = paymentService.processPaystackPayment(request.getEmail(), request.getTotal());
+			String response = payStackService.processPaystackPayment(request.getEmail(), request.getTotal());
 			return ResponseEntity.ok(response);
 		} catch (IOException e) {
 			return ResponseEntity.status(500).body("Payment Initialization Failed");
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
 	@GetMapping("/verify/{reference}")
 	public ResponseEntity<?> verifyPaymentForPayStack(@PathVariable String reference) {
 		try {
-			String response = paymentService.verifyPaystackPaymentTransaction(reference);
+			String response = payStackService.verifyPaystackPaymentTransaction(reference);
 			return ResponseEntity.ok(response);
 		} catch (IOException e) {
 			return ResponseEntity.status(500).body("Payment Verification Failed: " + e.getMessage());

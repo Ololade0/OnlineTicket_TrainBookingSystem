@@ -16,6 +16,8 @@ void updateSeat(Seat seat);
 List<Seat> findAllSeat();
 
 
+
+
 //List<Integer> findSeatNumberByTrainClass(TrainClass trainClass);
 
 }

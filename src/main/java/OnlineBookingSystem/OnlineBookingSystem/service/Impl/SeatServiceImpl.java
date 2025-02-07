@@ -1,15 +1,13 @@
-package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
+package OnlineBookingSystem.OnlineBookingSystem.service.Impl;//package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidSeatNumberException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.SeatAlreadyBookedException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.SeatCannotBeFoundException;
-import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainClassCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.Seat;
 import OnlineBookingSystem.OnlineBookingSystem.model.TrainClass;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.SeatStatus;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.SeatRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.SeatService;
-import OnlineBookingSystem.OnlineBookingSystem.service.TrainClassService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,20 +18,25 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
-    private final SeatRepository seatRepository;
 
-    public List<Seat> generateSeats(int startSeat, int endSeat, TrainClass trainClass) {
-        List<Seat> seats = new ArrayList<>();
-        for (int i = startSeat; i <= endSeat; i++) {
-            Seat seat = new Seat();
-            seat.setSeatNumber(i);
-            seat.setStatus(SeatStatus.AVAILABLE);
-            seat.setTrainClass(trainClass);
-            seats.add(seat);
+
+
+
+private final SeatRepository seatRepository;
+
+public List<Seat> generateSeats(int startSeat, int endSeat, TrainClass trainClass){
+        List<Seat> seats=new ArrayList<>();
+        for(int i=startSeat;i<=endSeat;i++){
+        Seat seat=new Seat();
+        seat.setSeatNumber(i);
+        seat.setStatus(SeatStatus.AVAILABLE);
+        seat.setTrainClass(trainClass);
+        seats.add(seat);
         }
         seatRepository.saveAll(seats);
         return seats;
-    }
+
+        }
 
 
     @Override
@@ -65,6 +68,9 @@ public class SeatServiceImpl implements SeatService {
         return Optional.ofNullable(seatRepository.findById(seatId).orElseThrow(() ->
                 new SeatCannotBeFoundException("Seat cannot be found")));
     }
+
+
+
     public void updateSeat(Seat seat) {
 
         seatRepository.save(seat);

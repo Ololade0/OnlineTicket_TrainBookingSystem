@@ -1,5 +1,6 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.BookingStatus;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -33,16 +34,20 @@ public class Booking {
     private TrainClass trainClass;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Seat> seats = new ArrayList<>();
 
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private BookingPayment bookingPayment;
 
     @ManyToOne
     @JsonManagedReference
     @JoinColumn(name = "schedule_id", nullable = false)
     private Schedule schedule;
+
+    @Enumerated(EnumType.STRING)
+    private BookingStatus bookingStatus; // PENDING, PAID, CANCELLED
+
 
     private Double fareAmount;
 
@@ -64,4 +69,18 @@ public class Booking {
         }
         this.seats.add(seat);
     }
+    @Builder
+    public Booking(Long bookingId, LocalDateTime bookingDate, Double fareAmount, BookingStatus bookingStatus,
+                   TrainClass trainClass, User user, Schedule schedule, List<Seat> seats, BookingPayment bookingPayment) {
+        this.bookingId = bookingId;
+        this.bookingDate = bookingDate;
+        this.fareAmount = fareAmount;
+        this.bookingStatus = bookingStatus;
+        this.trainClass = trainClass;
+        this.user = user;
+        this.schedule = schedule;
+        this.seats = seats != null ? seats : new ArrayList<>(); // Ensure seats is not null
+        this.bookingPayment = bookingPayment;
+    }
+
 }
