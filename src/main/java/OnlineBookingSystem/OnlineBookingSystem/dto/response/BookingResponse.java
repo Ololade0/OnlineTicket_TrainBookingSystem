@@ -41,4 +41,9 @@ public class BookingResponse {
     public BookingResponse(String s) {
         this.message = s;
     }
+
+    public BookingResponse(String approvalUrl, String message) {
+        this.approvalUrl = approvalUrl;
+        this.message = message;
+    }
 }

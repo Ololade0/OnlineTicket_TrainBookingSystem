@@ -6,6 +6,7 @@ import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidPassengerTypeEx
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainClassCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.UserCannotBeFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.*;
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.BookingStatus;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.BookingRepository;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.OtherPassengerRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.*;
@@ -61,6 +62,7 @@ public class BookingServiceImpl implements BookingService {
                 .trainClass(foundTrainClass)
                 .user(foundUser)
                 .schedule(foundSchedule)
+                .bookingStatus(BookingStatus.PENDING)
                 .build();
         primaryBooking = bookingRepository.save(primaryBooking);
 
@@ -70,7 +72,6 @@ public class BookingServiceImpl implements BookingService {
             Seat bookedSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), bookTrainDTO.getSeatNumber());
             primaryBooking.setFareAmount(getFareForPassengerType(bookTrainDTO.getPassengerType(), fare));
             bookingRepository.save(primaryBooking);
-
             List<OtherPassenger> savedAdditionalPassengers = bookTrainForOtherPassengers(bookTrainDTO, foundUser, fare, primaryBooking);
             return getBookingResponse(foundUser, bookedSeat, primaryBooking.getFareAmount(), totalFare, primaryBooking, savedAdditionalPassengers, primaryBooking.getBookingDate(), approvalUrl);
         } else {
@@ -162,5 +163,3 @@ public class BookingServiceImpl implements BookingService {
     }
 
 }
-
-

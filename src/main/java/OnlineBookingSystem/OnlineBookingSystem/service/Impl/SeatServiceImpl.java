@@ -9,6 +9,7 @@ import OnlineBookingSystem.OnlineBookingSystem.model.enums.SeatStatus;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.SeatRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.SeatService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SeatServiceImpl implements SeatService {
 
 
@@ -72,7 +74,6 @@ public List<Seat> generateSeats(int startSeat, int endSeat, TrainClass trainClas
 
 
     public void updateSeat(Seat seat) {
-
         seatRepository.save(seat);
     }
 

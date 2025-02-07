@@ -51,10 +51,7 @@ public class Booking {
 
     private Double fareAmount;
 
-    private String passengerType;
-
-//    private PaymentStatus paymentStatus;
-
+    private Fare passengerType;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OtherPassenger> otherPassengers = new ArrayList<>();
@@ -69,6 +66,10 @@ public class Booking {
         }
         this.seats.add(seat);
     }
+
+    public void updateStatus(BookingStatus newStatus) {
+        this.bookingStatus = newStatus;
+    }
     @Builder
     public Booking(Long bookingId, LocalDateTime bookingDate, Double fareAmount, BookingStatus bookingStatus,
                    TrainClass trainClass, User user, Schedule schedule, List<Seat> seats, BookingPayment bookingPayment) {
@@ -82,5 +83,6 @@ public class Booking {
         this.seats = seats != null ? seats : new ArrayList<>(); // Ensure seats is not null
         this.bookingPayment = bookingPayment;
     }
+
 
 }

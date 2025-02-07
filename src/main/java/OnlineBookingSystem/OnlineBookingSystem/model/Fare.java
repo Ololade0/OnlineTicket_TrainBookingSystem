@@ -6,7 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 @Embeddable
-
+@ToString
 public class Fare {
     private Double adultPrices;
     private Double minorPrices;
