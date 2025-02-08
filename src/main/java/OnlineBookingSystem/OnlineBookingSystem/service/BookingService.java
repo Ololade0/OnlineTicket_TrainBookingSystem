@@ -10,4 +10,6 @@ import java.io.IOException;
 public interface BookingService  {
      BookingResponse  createBooking(BookTrainDTO bookTrainDTO) throws InvalidPassengerTypeException, IOException, PayPalRESTException, InterruptedException;
 
+     BookingResponse confirmBooking(Long bookingId);
+
 }

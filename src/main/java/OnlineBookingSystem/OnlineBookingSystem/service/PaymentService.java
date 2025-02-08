@@ -16,4 +16,5 @@ import java.util.List;
 public interface PaymentService {
     String paymentProcessings(Double totalFare, User user, Booking booking, String email, PaymentMethod paymentMethod) throws IOException, InterruptedException;
 
+    boolean verifyPayment(Booking primaryBooking);
 }

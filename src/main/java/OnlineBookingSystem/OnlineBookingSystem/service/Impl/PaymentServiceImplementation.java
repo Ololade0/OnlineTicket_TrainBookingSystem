@@ -75,5 +75,18 @@ public class PaymentServiceImplementation implements PaymentService {
 		};
 	}
 
+	public boolean verifyPayment(Booking booking) {
+		// Simulating a payment verification process
+		// Ideally, this should make an API call to the payment gateway to check the status
+		String paymentStatus = checkPaymentStatusFromGateway(booking.getApprovalUrl());
+
+		return "SUCCESS".equalsIgnoreCase(paymentStatus);
+	}
+
+	private String checkPaymentStatusFromGateway(String approvalUrl) {
+		// Simulated response from a payment gateway API
+		// This should be an actual HTTP request to the gateway's verification endpoint
+		return "SUCCESS"; // Change this to simulate different responses
+	}
 
 }

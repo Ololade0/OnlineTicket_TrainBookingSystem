@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/book")
@@ -38,21 +35,12 @@ public class BookingController {
             return ResponseEntity.badRequest().body(new BookingResponse("Error: " + e.getMessage()));
         }
     }
+    @GetMapping("/{bookingId}")
+    public ResponseEntity<BookingResponse> getBookingById(@PathVariable Long bookingId) {
+        BookingResponse bookingResponse = bookingService.confirmBooking(bookingId);
+        return ResponseEntity.ok(bookingResponse);
+    }
 
-//    @PostMapping("/bookTrains")
-//    public ResponseEntity<BookingResponse> createBookings(@RequestBody BookTrainDTO bookTrainDTO) {
-//        try {
-//            BookingResponse bookingResponse = bookingService.createBooking(bookTrainDTO);
-//            String approvalUrl = paymentService.paymentProcessings(bookingResponse.getTotalFareAmount(), bookTrainDTO.getPaymentMethod());
-//            bookingResponse.setApprovalUrl(approvalUrl);
-//
-//            return ResponseEntity.ok(bookingResponse);
-//        } catch (InvalidPassengerTypeException e) {
-//            return ResponseEntity.badRequest().body(new BookingResponse("Error: " + e.getMessage()));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new BookingResponse("Error: " + e.getMessage()));
-//        }
-//    }
 
 
 }
