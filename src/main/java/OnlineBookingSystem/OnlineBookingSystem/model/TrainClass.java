@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-@ToString
+
 @Entity(name = "trainclass")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,5 +43,18 @@ public class TrainClass {
     private int totalSeat;
 
     public TrainClass(Long trainClassId, String className, Object o, int i) {
+    }
+
+    @Override
+    public String toString() {
+        return "TrainClass{" +
+                "trainClassId=" + trainClassId +
+                ", className='" + className + '\'' +
+                ", fare=" + fare +
+                ", train=" + train +
+                ", seats=" + seats +
+                ", bookings=" + bookings +
+                ", totalSeat=" + totalSeat +
+                '}';
     }
 }

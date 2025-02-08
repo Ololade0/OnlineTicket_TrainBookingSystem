@@ -32,7 +32,7 @@ public class trainClassServiceImpl implements TrainClassService {
             TrainClass newTrainClass = TrainClass.builder()
                     .className(trainClass.getClassName())
                     .fare(trainClass.getFare())
-//                    .train(train)
+                    .train(train)
                     .build();
             TrainClass savedTrainClass = trainClassRepository.save(newTrainClass);
             List<Seat> generatedSeats = seatService.generateSeats(startSeat, endSeat, savedTrainClass);

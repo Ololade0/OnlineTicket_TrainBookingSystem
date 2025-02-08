@@ -23,5 +23,6 @@ public class BookTrainDTO {
     private int seatNumber;
    private List<OtherPassenger> additionalPassengers = new ArrayList<>();
    private PaymentMethod paymentMethod;
+   private int count;
 
 }

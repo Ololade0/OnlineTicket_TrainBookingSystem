@@ -10,6 +10,8 @@ import OnlineBookingSystem.OnlineBookingSystem.model.enums.BookingStatus;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.BookingRepository;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.OtherPassengerRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.*;
+import OnlineBookingSystem.OnlineBookingSystem.utils.PnrCodeGenerator;
+import ch.qos.logback.core.testUtil.RandomUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final PaymentService paymentService;
     private final OtherPassengerRepository otherPassengerRepository;
+    private final PnrCodeGenerator pnrCodeGenerator;
 
     public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPassengerTypeException, IOException, InterruptedException {
         log.debug("Starting createBooking for user: {}", bookTrainDTO.getUserEmail());
@@ -52,28 +56,31 @@ public class BookingServiceImpl implements BookingService {
             throw new TrainClassCannotBeFoundException("Fare not found for train class: " + foundTrainClass.getClassName());
         }
 
-        // Calculate total fare
         Double totalFare = calculateTotalFare(bookTrainDTO, fare);
 
         // Create primary booking (without booking a seat yet)
         Booking primaryBooking = Booking.builder()
                 .bookingDate(LocalDateTime.now())
-                .fareAmount(totalFare)
+               .totalFareAmount(totalFare)
                 .trainClass(foundTrainClass)
                 .user(foundUser)
                 .schedule(foundSchedule)
+                .bookingDate(LocalDateTime.now())
+                .seatNumber(bookTrainDTO.getSeatNumber())
+                .passengerType(bookTrainDTO.getPassengerType())
+                .travelDate(foundSchedule.getDepartureDate().atStartOfDay())
+                .PassengerNameRecord(pnrCodeGenerator.generateUniquePnrCodes())
                 .bookingStatus(BookingStatus.PENDING)
                 .build();
         primaryBooking = bookingRepository.save(primaryBooking);
-
-        // Process payment
+        bookingRepository.flush();
         String approvalUrl = paymentService.paymentProcessings(totalFare, foundUser, primaryBooking, foundUser.getEmail(), bookTrainDTO.getPaymentMethod());
-        if (approvalUrl != null) {
+        if (approvalUrl.equals("SUCESS")) {
             Seat bookedSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), bookTrainDTO.getSeatNumber());
-            primaryBooking.setFareAmount(getFareForPassengerType(bookTrainDTO.getPassengerType(), fare));
+            primaryBooking.setApprovalUrl(approvalUrl);
             bookingRepository.save(primaryBooking);
             List<OtherPassenger> savedAdditionalPassengers = bookTrainForOtherPassengers(bookTrainDTO, foundUser, fare, primaryBooking);
-            return getBookingResponse(foundUser, bookedSeat, primaryBooking.getFareAmount(), totalFare, primaryBooking, savedAdditionalPassengers, primaryBooking.getBookingDate(), approvalUrl);
+            return getBookingResponse(foundUser, bookedSeat, primaryBooking.getTotalFareAmount(), totalFare, primaryBooking, savedAdditionalPassengers, primaryBooking.getBookingDate(), approvalUrl);
         } else {
             throw new RuntimeException("Payment was not successful, seat will not be booked.");
         }
@@ -106,6 +113,7 @@ public class BookingServiceImpl implements BookingService {
                 bookingDate,
                 savedAdditionalPassengers,
                 approvalUrl
+
         );
     }
 
@@ -117,7 +125,6 @@ public class BookingServiceImpl implements BookingService {
                 Seat additionalSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), additionalPassenger.getSeatNumber());
                 Double additionalPassengerFare = getFareForPassengerType(additionalPassenger.getPassengerType(), fare);
 
-                // Save additional passenger
                 OtherPassenger savedPassenger = OtherPassenger.builder()
                         .name(additionalPassenger.getName())
                         .email(additionalPassenger.getEmail())
@@ -151,11 +158,12 @@ public class BookingServiceImpl implements BookingService {
 
 
     private Double calculateTotalFare(BookTrainDTO bookTrainDTO, Fare fare) throws InvalidPassengerTypeException {
-        Double totalFare = getFareForPassengerType(bookTrainDTO.getPassengerType(), fare) + 200;
+        int convenienceCharge = 200;
+        Double totalFare = getFareForPassengerType(bookTrainDTO.getPassengerType(), fare) + convenienceCharge;
 
         if (bookTrainDTO.getAdditionalPassengers() != null) {
             for (OtherPassenger passenger : bookTrainDTO.getAdditionalPassengers()) {
-                totalFare += getFareForPassengerType(passenger.getPassengerType(), fare) + 200;
+                totalFare += getFareForPassengerType(passenger.getPassengerType(), fare) + convenienceCharge;
             }
         }
         return totalFare;

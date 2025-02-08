@@ -69,7 +69,7 @@ public class ScheduleServiceImplementation implements ScheduleService {
                 .departureDate(createSceduleDTO.getDepartureDate())
                 .fare(trainClass.getFare())
                 .train(train)
-//                .distance(distanceCalculatorService.calculateDistance())
+                .distance(distanceCalculatorService.calculateDistance())
                 .stations(stations)
                 .build();
 //        validateScheduleTimetable(departureStation.get(),arrivalStation.get(),createSceduleDTO.getScheduleType(),

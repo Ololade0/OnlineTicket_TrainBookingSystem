@@ -1,28 +1,39 @@
 package OnlineBookingSystem.OnlineBookingSystem.model;
 
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.BookingStatus;
-import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.web.context.request.FacesRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
 @Builder
-@ToString(exclude = {"seats", "payment"})
+@ToString(exclude = {"seats", "BookingPayment"})
+
 @Entity(name = "bookings")
 @AllArgsConstructor
+
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
-
     private LocalDateTime bookingDate;
 
+    private String PassengerNameRecord;
+
+    private LocalDateTime travelDate;
+    private Double totalFareAmount;
+
+    private String passengerType;
+    private int seatNumber;
+
+    private String approvalUrl;
     @JsonManagedReference
     @JoinColumn(name = "user_id", nullable = false)
     @ManyToOne
@@ -46,12 +57,9 @@ public class Booking {
     private Schedule schedule;
 
     @Enumerated(EnumType.STRING)
-    private BookingStatus bookingStatus; // PENDING, PAID, CANCELLED
+    private BookingStatus bookingStatus;
 
 
-    private Double fareAmount;
-
-    private Fare passengerType;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OtherPassenger> otherPassengers = new ArrayList<>();
@@ -70,19 +78,7 @@ public class Booking {
     public void updateStatus(BookingStatus newStatus) {
         this.bookingStatus = newStatus;
     }
-    @Builder
-    public Booking(Long bookingId, LocalDateTime bookingDate, Double fareAmount, BookingStatus bookingStatus,
-                   TrainClass trainClass, User user, Schedule schedule, List<Seat> seats, BookingPayment bookingPayment) {
-        this.bookingId = bookingId;
-        this.bookingDate = bookingDate;
-        this.fareAmount = fareAmount;
-        this.bookingStatus = bookingStatus;
-        this.trainClass = trainClass;
-        this.user = user;
-        this.schedule = schedule;
-        this.seats = seats != null ? seats : new ArrayList<>(); // Ensure seats is not null
-        this.bookingPayment = bookingPayment;
-    }
+
 
 
 }
