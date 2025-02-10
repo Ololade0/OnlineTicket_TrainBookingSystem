@@ -33,7 +33,9 @@ public class BookingServiceImpl implements BookingService {
     private final SeatService seatService;
     private final BookingRepository bookingRepository;
     private final PaymentService paymentService;
-    private final OtherPassengerRepository otherPassengerRepository;
+
+    private final OtherPassengerService otherPassengerService;
+
     private final PnrCodeGenerator pnrCodeGenerator;
 @Transactional
     public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPassengerTypeException, IOException, InterruptedException {
@@ -57,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
             throw new TrainClassCannotBeFoundException("Fare not found for train class: " + foundTrainClass.getClassName());
         }
 
-        Double totalFare = calculateTotalFare(bookTrainDTO, fare);
+        Double totalFare = otherPassengerService.calculateTotalFare(bookTrainDTO, fare);
 
         // Create primary booking (without booking a seat yet)
         Booking primaryBooking = Booking.builder()
@@ -73,24 +75,26 @@ public class BookingServiceImpl implements BookingService {
                 .PassengerNameRecord(pnrCodeGenerator.generateUniquePnrCodes())
                 .bookingStatus(BookingStatus.PENDING)
                 .build();
+
         primaryBooking = bookingRepository.save(primaryBooking);
         bookingRepository.flush();
         String approvalUrl = paymentService.paymentProcessings(totalFare, foundUser, primaryBooking, foundUser.getEmail(), bookTrainDTO.getPaymentMethod());
         if(approvalUrl == null || approvalUrl.isEmpty()){
             return new BookingResponse("Error: Payment processing failed, approval URL not generated.");
         }
+
         primaryBooking.setApprovalUrl(approvalUrl);
         bookingRepository.save(primaryBooking);
-
-        List<OtherPassenger> savedAdditionalPassengers = bookTrainForOtherPassengers(bookTrainDTO,foundUser, fare, primaryBooking);
-
+        List<OtherPassenger> savedAdditionalPassengers = otherPassengerService.bookTrainForOtherPassengers(bookTrainDTO,foundUser, fare, primaryBooking);
         return new BookingResponse(primaryBooking.getBookingId(),"Payment initiated. Please complete the payment using the provided URL.", approvalUrl);
     }
+
+
+
     public  BookingResponse confirmBooking(Long bookingId) {
         Booking primaryBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found for ID: " + bookingId));
 
-        // Verify payment status
         boolean isPaymentSuccessful = paymentService.verifyPayment(primaryBooking);
         if (!isPaymentSuccessful) {
             return new BookingResponse(
@@ -105,98 +109,27 @@ public class BookingServiceImpl implements BookingService {
                     null
             );
         }
-        // Book seat after payment is confirmed
-        Seat bookedSeat = seatService.bookSeat(primaryBooking.getTrainClass().getClassName(), primaryBooking.getSeatNumber());
-
-        // Update booking status
+         Seat bookedSeat = seatService.bookSeat(primaryBooking.getTrainClass().getClassName(), primaryBooking.getSeatNumber());
         primaryBooking.setBookingStatus(BookingStatus.BOOKED);
         bookingRepository.save(primaryBooking);
+        return getBookingResponse(primaryBooking.getUser(),bookedSeat,primaryBooking.getTotalFareAmount(),
+                primaryBooking.getTotalFareAmount(),primaryBooking,null,primaryBooking.getBookingDate(), primaryBooking.getApprovalUrl());
+    }
 
-        // Process additional passengers
-        return getBookingResponse(
-                primaryBooking.getUser(),
-                bookedSeat,
-                primaryBooking.getTotalFareAmount(),
-                primaryBooking.getTotalFareAmount(),
-                primaryBooking,
-                null,
-                primaryBooking.getBookingDate(),
-                primaryBooking.getApprovalUrl()
+        private static BookingResponse getBookingResponse(User foundUser,Seat bookedSeat,Double primaryPassengerFare,Double totalFare,Booking primaryBooking,
+                                                          List<OtherPassenger> savedAdditionalPassengers,LocalDateTime bookingDate,String approvalUrl) {
+
+        return new BookingResponse(primaryBooking.getBookingId(),"Booking successful",bookedSeat.getSeatNumber(),
+                primaryPassengerFare, totalFare, foundUser, bookingDate,null, approvalUrl
         );
     }
 
-    private static BookingResponse getBookingResponse(
-            User foundUser,
-            Seat bookedSeat,
-            Double primaryPassengerFare,
-            Double totalFare,
-            Booking primaryBooking,
-            List<OtherPassenger> savedAdditionalPassengers,
-            LocalDateTime bookingDate,
-            String approvalUrl) {
 
-        return new BookingResponse(
-                primaryBooking.getBookingId(),
-                "Booking successful",
-                bookedSeat.getSeatNumber(),
-                primaryPassengerFare,
-                totalFare,
-                foundUser,
-                bookingDate,
-                null,
-                approvalUrl
-        );
-    }
 
-    private List<OtherPassenger> bookTrainForOtherPassengers(BookTrainDTO bookTrainDTO, User foundUser, Fare fare, Booking primaryBooking) throws InvalidPassengerTypeException {
-        List<OtherPassenger> savedAdditionalPassengers = new ArrayList<>();
-        if (bookTrainDTO.getAdditionalPassengers() != null) {
-            for (OtherPassenger additionalPassenger : bookTrainDTO.getAdditionalPassengers()) {
-                Seat additionalSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), additionalPassenger.getSeatNumber());
-                Double additionalPassengerFare = getFareForPassengerType(additionalPassenger.getPassengerType(), fare);
 
-                OtherPassenger savedPassenger = OtherPassenger.builder()
-                        .name(additionalPassenger.getName())
-                        .email(additionalPassenger.getEmail())
-                        .gender(additionalPassenger.getGender())
-                        .phoneNumber(additionalPassenger.getPhoneNumber())
-                        .idNumber(additionalPassenger.getIdNumber())
-                        .identificationType(additionalPassenger.getIdentificationType())
-                        .passengerType(additionalPassenger.getPassengerType())
-//                        .seatNumber(additionalSeat.getSeatNumber())
-                        .booking(primaryBooking)
-                        .user(foundUser)
-                        .build();
 
-                otherPassengerRepository.save(savedPassenger);
-                savedAdditionalPassengers.add(savedPassenger);
-            }
-        }
 
-        return savedAdditionalPassengers;
-    }
 
-    private Double calculateTotalFare(BookTrainDTO bookTrainDTO, Fare fare) throws InvalidPassengerTypeException {
-        int convenienceCharge = 200;
-        Double totalFare = getFareForPassengerType(bookTrainDTO.getPassengerType(), fare) + convenienceCharge;
-
-        if (bookTrainDTO.getAdditionalPassengers() != null) {
-            for (OtherPassenger passenger : bookTrainDTO.getAdditionalPassengers()) {
-                totalFare += getFareForPassengerType(passenger.getPassengerType(), fare) + convenienceCharge;
-            }
-        }
-        return totalFare;
-    }
-
-    private Double getFareForPassengerType(String passengerType, Fare fare) throws InvalidPassengerTypeException {
-        if ("adult".equalsIgnoreCase(passengerType)) {
-            return fare.getAdultPrices();
-        } else if ("minor".equalsIgnoreCase(passengerType)) {
-            return fare.getMinorPrices();
-        } else {
-            throw new InvalidPassengerTypeException("Invalid passenger type: " + passengerType);
-        }
-    }
 }
 
 

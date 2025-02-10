@@ -38,7 +38,7 @@ public class StripeServiceImpl implements StripeService {
     @Value("${stripe.webhook.secret}")
     private String stripeWebhookSecret;
     private final PaymentRepository paymentRepository;
-    private BookingRepository bookingRepository;
+    private final BookingRepository bookingRepository;
 
     private final SeatService seatService;
 

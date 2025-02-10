@@ -1,6 +1,8 @@
 package OnlineBookingSystem.OnlineBookingSystem.dto.response;
 
+import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
 import OnlineBookingSystem.OnlineBookingSystem.model.OtherPassenger;
+import OnlineBookingSystem.OnlineBookingSystem.model.Seat;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -53,4 +55,6 @@ public class BookingResponse {
         this.message = message;
         this.approvalUrl = approvalUrl;
     }
+
+
 }

@@ -6,6 +6,8 @@ import OnlineBookingSystem.OnlineBookingSystem.model.*;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.IdentificationType;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.OtherPassengerRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.OtherPassengerService;
+import OnlineBookingSystem.OnlineBookingSystem.service.SeatService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,44 +15,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OtherPassengerServiceImpl implements OtherPassengerService {
 
-    @Autowired
-    private  OtherPassengerRepository otherPassengerRepository;
+    private final OtherPassengerRepository otherPassengerRepository;
+    private final SeatService seatService;
 
 
 
 
-    @Override
-    public List<OtherPassenger> addNewPassengers(List<OtherPassenger> otherPassengers) {
-        List<OtherPassenger> savedPassengers = new ArrayList<>();
-
-        for (OtherPassenger otherPassenger : otherPassengers) {
-            OtherPassenger otherPassenger1 = OtherPassenger.builder()
-                    .name(otherPassenger.getName())
-                    .gender(otherPassenger.getGender())
-                    .identificationType(IdentificationType.valueOf(otherPassenger.getIdentificationType().toString()))
-                    .phoneNumber(otherPassenger.getPhoneNumber())
-                    .idNumber(otherPassenger.getIdNumber())
-                    .email(otherPassenger.getEmail())
-                    .build();
-            OtherPassenger newPassenger = otherPassengerRepository.save(otherPassenger1);
-
-            savedPassengers.add(newPassenger);
-        }
-
-        return savedPassengers;
-    }
-
-
-    public List<OtherPassenger> bookTrainForOtherPassengers(BookTrainDTO bookTrainDTO) {
+    public List<OtherPassenger> bookTrainForOtherPassengers(BookTrainDTO bookTrainDTO, User foundUser, Fare fare, Booking primaryBooking) throws InvalidPassengerTypeException {
         List<OtherPassenger> savedAdditionalPassengers = new ArrayList<>();
         if (bookTrainDTO.getAdditionalPassengers() != null) {
             for (OtherPassenger additionalPassenger : bookTrainDTO.getAdditionalPassengers()) {
-//                Seat additionalSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), additionalPassenger.getSeatNumber());
-//                Double additionalPassengerFare = getFareForPassengerType(additionalPassenger.getPassengerType(), fare);
+                Seat additionalSeat = seatService.bookSeat(bookTrainDTO.getTrainClassName(), additionalPassenger.getSeatNumber());
+                Double additionalPassengerFare = getFareForPassengerType(additionalPassenger.getPassengerType(), fare);
 
-                // Save additional passenger
                 OtherPassenger savedPassenger = OtherPassenger.builder()
                         .name(additionalPassenger.getName())
                         .email(additionalPassenger.getEmail())
@@ -60,9 +40,10 @@ public class OtherPassengerServiceImpl implements OtherPassengerService {
                         .identificationType(additionalPassenger.getIdentificationType())
                         .passengerType(additionalPassenger.getPassengerType())
 //                        .seatNumber(additionalSeat.getSeatNumber())
-//                        .booking(primaryBooking) // Ensure this is set
-//                        .user(foundUser)
+                        .booking(primaryBooking)
+                        .user(foundUser)
                         .build();
+
                 otherPassengerRepository.save(savedPassenger);
                 savedAdditionalPassengers.add(savedPassenger);
             }
@@ -71,8 +52,27 @@ public class OtherPassengerServiceImpl implements OtherPassengerService {
         return savedAdditionalPassengers;
     }
 
+    public Double calculateTotalFare(BookTrainDTO bookTrainDTO, Fare fare) throws InvalidPassengerTypeException {
+        int convenienceCharge = 200;
+        Double totalFare = getFareForPassengerType(bookTrainDTO.getPassengerType(), fare) + convenienceCharge;
 
+        if (bookTrainDTO.getAdditionalPassengers() != null) {
+            for (OtherPassenger passenger : bookTrainDTO.getAdditionalPassengers()) {
+                totalFare += getFareForPassengerType(passenger.getPassengerType(), fare) + convenienceCharge;
+            }
+        }
+        return totalFare;
+    }
 
+    private Double getFareForPassengerType(String passengerType, Fare fare) throws InvalidPassengerTypeException {
+        if ("adult".equalsIgnoreCase(passengerType)) {
+            return fare.getAdultPrices();
+        } else if ("minor".equalsIgnoreCase(passengerType)) {
+            return fare.getMinorPrices();
+        } else {
+            throw new InvalidPassengerTypeException("Invalid passenger type: " + passengerType);
+        }
+    }
 
     @Override
     public OtherPassenger findByEmailOrNull(String email) {
