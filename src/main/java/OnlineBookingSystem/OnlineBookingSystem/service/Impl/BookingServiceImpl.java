@@ -84,19 +84,9 @@ public class BookingServiceImpl implements BookingService {
 
         List<OtherPassenger> savedAdditionalPassengers = bookTrainForOtherPassengers(bookTrainDTO,foundUser, fare, primaryBooking);
 
-        return new BookingResponse(
-                primaryBooking.getBookingId(),
-                "Payment initiated. Please complete the payment using the provided URL.",
-                0,
-                null,
-                totalFare,
-                foundUser,
-                primaryBooking.getBookingDate(),
-                savedAdditionalPassengers,
-                approvalUrl
-        );
+        return new BookingResponse(primaryBooking.getBookingId(),"Payment initiated. Please complete the payment using the provided URL.", approvalUrl);
     }
-    public BookingResponse confirmBooking(Long bookingId) {
+    public  BookingResponse confirmBooking(Long bookingId) {
         Booking primaryBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found for ID: " + bookingId));
 
@@ -115,7 +105,6 @@ public class BookingServiceImpl implements BookingService {
                     null
             );
         }
-
         // Book seat after payment is confirmed
         Seat bookedSeat = seatService.bookSeat(primaryBooking.getTrainClass().getClassName(), primaryBooking.getSeatNumber());
 
@@ -154,7 +143,7 @@ public class BookingServiceImpl implements BookingService {
                 totalFare,
                 foundUser,
                 bookingDate,
-                savedAdditionalPassengers,
+                null,
                 approvalUrl
         );
     }
@@ -186,10 +175,6 @@ public class BookingServiceImpl implements BookingService {
 
         return savedAdditionalPassengers;
     }
-
-
-
-
 
     private Double calculateTotalFare(BookTrainDTO bookTrainDTO, Fare fare) throws InvalidPassengerTypeException {
         int convenienceCharge = 200;

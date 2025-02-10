@@ -2,6 +2,7 @@ package OnlineBookingSystem.OnlineBookingSystem.dto.response;
 
 import OnlineBookingSystem.OnlineBookingSystem.model.OtherPassenger;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -9,20 +10,20 @@ import java.util.List;
 
 @Setter
 @Getter
-@Builder
 @ToString
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BookingResponse {
     private Long bookingId;
     private String message;
     private int bookedSeat;
     private Double fareAmount;
     private Double totalFareAmount;
-    private User user; // Main user details
+    private User user;
     private LocalDateTime bookingDate;
 
 
-    private List<OtherPassenger> additionalPassengers; // List of additional passengers
+    private List<OtherPassenger> additionalPassengers;
     private String approvalUrl;
 
     public BookingResponse(Long bookingId, String message, int bookedSeat, Double fareAmount, Double totalFareAmount,
@@ -45,5 +46,11 @@ public class BookingResponse {
     public BookingResponse(String approvalUrl, String message) {
         this.approvalUrl = approvalUrl;
         this.message = message;
+    }
+
+    public BookingResponse(Long bookingId, String message, String approvalUrl) {
+        this.bookingId = bookingId;
+        this.message = message;
+        this.approvalUrl = approvalUrl;
     }
 }

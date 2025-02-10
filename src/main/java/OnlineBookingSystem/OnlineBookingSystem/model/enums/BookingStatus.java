@@ -1,5 +1,9 @@
 package OnlineBookingSystem.OnlineBookingSystem.model.enums;
 
 public enum BookingStatus {
-    PENDING, CANCELLED, BOOKED
+    PENDING,
+    PAID,
+    COMPLETED,
+    CANCELED,
+    BOOKED
 }

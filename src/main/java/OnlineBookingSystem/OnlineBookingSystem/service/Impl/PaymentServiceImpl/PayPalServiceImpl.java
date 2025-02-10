@@ -9,6 +9,7 @@ import OnlineBookingSystem.OnlineBookingSystem.model.enums.Currency;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentMethod;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentStatus;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.PaymentRepository;
+import OnlineBookingSystem.OnlineBookingSystem.service.PaymentService;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class PayPalServiceImpl implements PayPalService {
@@ -49,18 +52,16 @@ public class PayPalServiceImpl implements PayPalService {
 
             // Create PayPal Payment
             Payment payment = createPaypalPayment(paymentRequest);
-
             // Extract approval URL
             approvalUrl = payment.getLinks().stream()
                     .filter(link -> "approval_url".equals(link.getRel()))
                     .findFirst()
                     .map(com.paypal.api.payments.Links::getHref)
                     .orElseThrow(() -> new RuntimeException("Approval URL not found in the payment response."));
-
             String transactionReference = payment.getId();
             booking.setBookingStatus(BookingStatus.PENDING);
+
             BookingPayment bookingPayment = BookingPayment.builder()
-                    .paymentDate(LocalDateTime.now())
                     .totalPrice(totalFare)
                     .paymentStatus(PaymentStatus.PENDING)
                     .paymentMethod(PaymentMethod.paypal)
@@ -70,7 +71,8 @@ public class PayPalServiceImpl implements PayPalService {
                     .booking(booking)
                     .build();
             booking.setBookingPayment(bookingPayment);
-            paymentRepository.save(bookingPayment);
+//           paymentService.savePaymentInfo(bookingPayment);
+           paymentRepository.save(bookingPayment);
         } catch (PayPalRESTException e) {
             throw new RuntimeException("Payment failed: " + e.getMessage());
         }
@@ -105,7 +107,6 @@ public class PayPalServiceImpl implements PayPalService {
         redirectUrls.setCancelUrl(paymentRequest.getCancelUrl());
         redirectUrls.setReturnUrl(paymentRequest.getSuccessUrl());
         newPayment.setRedirectUrls(redirectUrls);
-
         return newPayment.create(apiContext);
     }
 
@@ -120,10 +121,12 @@ public class PayPalServiceImpl implements PayPalService {
 
         if ("approved".equalsIgnoreCase(executedPayment.getState())) {
             BookingPayment bookingPayment = paymentRepository.findBytransactionReference(executedPayment.getId());
-            if (bookingPayment != null) {
+            if (bookingPayment !=null ) {
                 bookingPayment.setPaymentStatus(PaymentStatus.COMPLETED);
                 bookingPayment.setSuccessUrl(successUrl);
                 bookingPayment.setPaymentMethod(PaymentMethod.paypal);
+                bookingPayment.setPaymentDate(LocalDateTime.now());
+//                paymentService.savePaymentInfo(bookingPayment);
                 paymentRepository.save(bookingPayment);
                 log.info("Payment status updated to COMPLETED.");
             }

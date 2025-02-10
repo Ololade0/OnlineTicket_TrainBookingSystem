@@ -57,6 +57,7 @@ public class Booking {
     private Schedule schedule;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "booking_status", nullable = false, length = 20)
     private BookingStatus bookingStatus;
 
 

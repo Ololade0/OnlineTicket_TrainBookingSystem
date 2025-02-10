@@ -1,7 +1,10 @@
-package OnlineBookingSystem.OnlineBookingSystem.controller;
+package OnlineBookingSystem.OnlineBookingSystem.controller.PaymentControllers;
 
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.PaymentRequest;
+import OnlineBookingSystem.OnlineBookingSystem.dto.response.BookingResponse;
+import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
+import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.PayPalService;
 import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.PayStackService;
 import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.StripeService;
@@ -79,13 +82,6 @@ public ResponseEntity<String> cancelPaymentTransaction() {
 
 
 
-	@GetMapping("/create-payment-intent")
-	public String createPaymentIntentForStripe(@RequestParam Double totalFare, Model model) {
-		System.out.println("Total Fare: " + totalFare); // Debug statement
-		String clientSecret = stripeService.processStripePayment(totalFare);
-		model.addAttribute("clientSecret", clientSecret);
-		return "checkout";
-	}
 
 	@PostMapping("/pay")
 	public ResponseEntity<?> processPaymentForPayStack(@RequestBody PaymentRequest request) {
@@ -98,6 +94,13 @@ public ResponseEntity<String> cancelPaymentTransaction() {
 			throw new RuntimeException(e);
 		}
 	}
+
+//	@GetMapping("/{bookingId}")
+//	public ResponseEntity<?> getBookingById(@PathVariable String intentId) {
+//		String bookingResponse = stripeService.confirmStripePayment(intentId);
+//		return ResponseEntity.ok(bookingResponse);
+//	}
+
 
 	@GetMapping("/verify/{reference}")
 	public ResponseEntity<?> verifyPaymentForPayStack(@PathVariable String reference) {
@@ -114,6 +117,9 @@ public ResponseEntity<String> cancelPaymentTransaction() {
 		System.out.println("Received Webhook: " + payload);
 		return ResponseEntity.ok("Webhook received");
 	}
+
+
+
 
 
 	private String generateCancelResponse() {
