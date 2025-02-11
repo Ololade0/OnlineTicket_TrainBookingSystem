@@ -2,16 +2,12 @@ package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.BookTrainDTO;
 import OnlineBookingSystem.OnlineBookingSystem.dto.response.BookingResponse;
-import OnlineBookingSystem.OnlineBookingSystem.exceptions.InvalidPassengerTypeException;
-import OnlineBookingSystem.OnlineBookingSystem.exceptions.TrainClassCannotBeFoundException;
-import OnlineBookingSystem.OnlineBookingSystem.exceptions.UserCannotBeFoundException;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.*;
 import OnlineBookingSystem.OnlineBookingSystem.model.*;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.BookingStatus;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.BookingRepository;
-import OnlineBookingSystem.OnlineBookingSystem.repositories.OtherPassengerRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.*;
 import OnlineBookingSystem.OnlineBookingSystem.utils.PnrCodeGenerator;
-import ch.qos.logback.core.testUtil.RandomUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,20 +33,12 @@ public class BookingServiceImpl implements BookingService {
 
     private final PnrCodeGenerator pnrCodeGenerator;
 @Transactional
+@Override
     public BookingResponse createBooking(BookTrainDTO bookTrainDTO) throws InvalidPassengerTypeException, IOException, InterruptedException {
         log.debug("Starting createBooking for user: {}", bookTrainDTO.getUserEmail());
 
-        // Validate user
         User foundUser = userService.findUserByEmail(bookTrainDTO.getUserEmail());
-        if (foundUser == null) {
-            throw new UserCannotBeFoundException("User with email " + bookTrainDTO.getUserEmail() + " not found");
-        }
-
-        // Validate train class
         TrainClass foundTrainClass = trainClassService.findTrainClassByName(bookTrainDTO.getTrainClassName());
-        if (foundTrainClass == null) {
-            throw new TrainClassCannotBeFoundException("Train class " + bookTrainDTO.getTrainClassName() + " not found");
-        }
 
         Schedule foundSchedule = scheduleService.findByScheduleId(bookTrainDTO.getScheduleId());
         Fare fare = foundTrainClass.getFare();
@@ -68,7 +55,6 @@ public class BookingServiceImpl implements BookingService {
                 .trainClass(foundTrainClass)
                 .user(foundUser)
                 .schedule(foundSchedule)
-                .bookingDate(LocalDateTime.now())
                 .seatNumber(bookTrainDTO.getSeatNumber())
                 .passengerType(bookTrainDTO.getPassengerType())
                 .travelDate(foundSchedule.getDepartureDate().atStartOfDay())
@@ -78,22 +64,23 @@ public class BookingServiceImpl implements BookingService {
 
         primaryBooking = bookingRepository.save(primaryBooking);
         bookingRepository.flush();
+
         String approvalUrl = paymentService.paymentProcessings(totalFare, foundUser, primaryBooking, foundUser.getEmail(), bookTrainDTO.getPaymentMethod());
         if(approvalUrl == null || approvalUrl.isEmpty()){
-            return new BookingResponse("Error: Payment processing failed, approval URL not generated.");
+            throw new PaymentProcessingException("Error: Payment processing failed, approval URL not generated.");
         }
-
-        primaryBooking.setApprovalUrl(approvalUrl);
+         primaryBooking.setApprovalUrl(approvalUrl);
         bookingRepository.save(primaryBooking);
+
         List<OtherPassenger> savedAdditionalPassengers = otherPassengerService.bookTrainForOtherPassengers(bookTrainDTO,foundUser, fare, primaryBooking);
         return new BookingResponse(primaryBooking.getBookingId(),"Payment initiated. Please complete the payment using the provided URL.", approvalUrl);
     }
 
 
-
+@Override
     public  BookingResponse confirmBooking(Long bookingId) {
         Booking primaryBooking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found for ID: " + bookingId));
+                .orElseThrow(() -> new BookingCannotBeFoundException("Booking not found for ID: " + bookingId));
 
         boolean isPaymentSuccessful = paymentService.verifyPayment(primaryBooking);
         if (!isPaymentSuccessful) {
@@ -116,10 +103,17 @@ public class BookingServiceImpl implements BookingService {
                 primaryBooking.getTotalFareAmount(),primaryBooking,null,primaryBooking.getBookingDate(), primaryBooking.getApprovalUrl());
     }
 
-        private static BookingResponse getBookingResponse(User foundUser,Seat bookedSeat,Double primaryPassengerFare,Double totalFare,Booking primaryBooking,
-                                                          List<OtherPassenger> savedAdditionalPassengers,LocalDateTime bookingDate,String approvalUrl) {
+    @Override
+    public Optional<Booking> getBookingById(Long bookingId) {
+        return bookingRepository.findById(bookingId);
+    }
 
-        return new BookingResponse(primaryBooking.getBookingId(),"Booking successful",bookedSeat.getSeatNumber(),
+    private static BookingResponse getBookingResponse(User foundUser,Seat bookedSeat,Double primaryPassengerFare,Double totalFare,Booking primaryBooking,
+                                                          List<OtherPassenger> savedAdditionalPassengers,LocalDateTime bookingDate,String approvalUrl) {
+        Integer seatNumber = (bookedSeat != null) ? bookedSeat.getSeatNumber() : null;
+
+
+        return new BookingResponse(primaryBooking.getBookingId(),"Booking successful",seatNumber,
                 primaryPassengerFare, totalFare, foundUser, bookingDate,null, approvalUrl
         );
     }

@@ -39,7 +39,7 @@ public class OtherPassengerServiceImpl implements OtherPassengerService {
                         .idNumber(additionalPassenger.getIdNumber())
                         .identificationType(additionalPassenger.getIdentificationType())
                         .passengerType(additionalPassenger.getPassengerType())
-//                        .seatNumber(additionalSeat.getSeatNumber())
+                        .seatNumber(additionalSeat.getSeatNumber())
                         .booking(primaryBooking)
                         .user(foundUser)
                         .build();

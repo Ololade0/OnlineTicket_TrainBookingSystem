@@ -29,7 +29,7 @@ public class PaymentServiceImplementation implements PaymentService {
 
 		return switch (paymentMethod) {
 			case paypal ->  payPalService.processPaypalPayment(totalFare, user, booking);
-			case STRIPE -> stripeService.processStripePayment(totalFare, user, booking);
+			case STRIPE -> stripeService.processStripePayment(totalFare, user.getId(), booking.getBookingId());
 			case PAYSTACK -> payStackService.processPaystackPayment(user.getEmail(), totalFare);
 			default -> throw new IllegalArgumentException("Unsupported payment method: " + paymentMethod);
 		};

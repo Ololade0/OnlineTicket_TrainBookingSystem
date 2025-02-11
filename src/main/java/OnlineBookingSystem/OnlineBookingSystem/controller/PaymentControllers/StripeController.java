@@ -5,7 +5,9 @@ import OnlineBookingSystem.OnlineBookingSystem.model.BookingPayment;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
 import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.StripeService;
 import com.stripe.exception.SignatureVerificationException;
+import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
+import com.stripe.model.PaymentIntent;
 import com.stripe.net.Webhook;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,48 +27,35 @@ public class StripeController {
     private final StripeService stripeService;
 
 
+
     @GetMapping("/create-payment-intent")
+    public ResponseEntity<String> createPaymentIntentForStripe(@RequestParam Double totalFare,
+                                                               @RequestParam Long userId,
+                                                               @RequestParam Long bookingId) {
 
-    public String createPaymentIntentForStripe(@RequestParam Double totalFare, User user, Booking booking, Model model) {
-        String clientSecret = stripeService.processStripePayment(totalFare,user,booking);
-        model.addAttribute("clientSecret", clientSecret);
-        return "checkout";
+        String clientSecret = stripeService.processStripePayment(totalFare, userId, bookingId);
+        return ResponseEntity.ok(clientSecret);
     }
-
-
-//
-@PostMapping("stripe-webhook")
-public ResponseEntity<String> handleWebhook(@RequestBody String payload,
-                                            @RequestHeader("Stripe-Signature") String sigHeader) {
-    try {
-        // Verify the webhook signature
-        Event event = Webhook.constructEvent(payload, sigHeader, stripeWebhookSecret);
-
-        // Log the event type
-        System.out.println("Webhook verified: " + event.getType());
-
-        // Process different Stripe event types
-        switch (event.getType()) {
-            case "checkout.session.completed":
-                System.out.println("✅ Payment completed!");
-                break;
-            case "payment_intent.succeeded":
-                System.out.println("✅ Payment intent succeeded!");
-                break;
-            case "customer.created":
-                System.out.println("✅ New customer created!");
-                break;
-            default:
-                System.out.println("⚠️ Unhandled event type: " + event.getType());
+      @PostMapping("stripe-webhook")
+    public ResponseEntity<String> handleWebhook(@RequestBody String payload,
+                                                @RequestHeader("Stripe-Signature") String sigHeader) {
+        try {
+            Event event = Webhook.constructEvent(payload, sigHeader, stripeWebhookSecret);
+            if ("payment_intent.succeeded".equals(event.getType())) {
+                PaymentIntent paymentIntent = (PaymentIntent) event.getDataObjectDeserializer().getObject().orElse(null);
+                if (paymentIntent != null) {
+                    String paymentIntentId = paymentIntent.getId();
+                    stripeService.confirmPayment(paymentIntentId);
+                }
+            }
+            return ResponseEntity.ok("Webhook processed successfully");
+        } catch (SignatureVerificationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
+        } catch (StripeException e) {
+            throw new RuntimeException(e);
         }
-
-        return ResponseEntity.ok("Webhook received successfully");
-
-    } catch (SignatureVerificationException e) {
-        System.out.println("❌ Invalid signature!");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
     }
-}
+
 
 }
 
