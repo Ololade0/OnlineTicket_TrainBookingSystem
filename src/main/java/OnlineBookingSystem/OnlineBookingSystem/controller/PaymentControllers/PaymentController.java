@@ -27,56 +27,12 @@ import java.util.Map;
 @RequestMapping("/api/payments")
 public class PaymentController {
 
-	@Autowired
-    private PayPalService payPalService;
+
 
 	@Autowired
 	private PayStackService payStackService;
 
-	@Autowired
-	private StripeService stripeService;
 
-
-	@Value("${stripe.api.key}")
-	private String stripeApiKey;
-
-
-	@GetMapping("/")
-	public String home() {
-		return "home";
-	}
-
-@GetMapping("/pay/cancel")
-public ResponseEntity<String> cancelPaymentTransaction() {
-	String responseHtml = generateCancelResponse();
-	return ResponseEntity.ok()
-			.contentType(MediaType.TEXT_HTML)
-			.body(responseHtml);
-}
-
-
-		@GetMapping("pay/success")
-	public ResponseEntity<String> successPayForPayPal(@RequestParam("paymentId") String paymentId,
-											 @RequestParam("PayerID") String payerId) {
-		try {
-			// Execute the payment
-			Payment payment = payPalService.executePaypalPayment(paymentId, payerId);
-			System.out.println(payment.toJSON());
-
-			if ("approved".equals(payment.getState())) {
-				return ResponseEntity.ok()
-						.contentType(MediaType.TEXT_HTML)
-						.body(generateSuccessResponse(paymentId, payerId));
-			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-						.body("Payment was not approved.");
-			}
-		} catch (PayPalRESTException e) {
-			System.err.println("Error during payment execution: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("An error occurred while processing the payment.");
-		}
-	}
 
 
 
@@ -94,12 +50,6 @@ public ResponseEntity<String> cancelPaymentTransaction() {
 			throw new RuntimeException(e);
 		}
 	}
-
-//	@GetMapping("/{bookingId}")
-//	public ResponseEntity<?> getBookingById(@PathVariable String intentId) {
-//		String bookingResponse = stripeService.confirmStripePayment(intentId);
-//		return ResponseEntity.ok(bookingResponse);
-//	}
 
 
 	@GetMapping("/verify/{reference}")
@@ -119,23 +69,6 @@ public ResponseEntity<String> cancelPaymentTransaction() {
 	}
 
 
-
-
-
-	private String generateCancelResponse() {
-		return "<html><body><h1>Payment Canceled</h1>" +
-				"<p>Your payment has been canceled successfully.</p>" +
-				"<p>If you have any questions, please contact support.</p>" +
-				"<a href=\"/\">Return to Home</a>" +
-				"</body></html>";
-	}
-
-
-	private String generateSuccessResponse(String paymentId, String payerId) {
-		return "<html><body><h1>Payment Successful!</h1>" +
-				"<p>Payment ID: " + paymentId + "</p>" +
-				"<p>Payer ID: " + payerId + "</p></body></html>";
-	}
 
 
 

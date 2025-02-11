@@ -1,21 +1,27 @@
 package OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl;
 
 import OnlineBookingSystem.OnlineBookingSystem.dto.request.PaymentRequest;
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.ApprovalUrlNotFoundException;
 import OnlineBookingSystem.OnlineBookingSystem.model.Booking;
 import OnlineBookingSystem.OnlineBookingSystem.model.BookingPayment;
+import OnlineBookingSystem.OnlineBookingSystem.model.Seat;
 import OnlineBookingSystem.OnlineBookingSystem.model.User;
-import OnlineBookingSystem.OnlineBookingSystem.model.enums.BookingStatus;
+import OnlineBookingSystem.OnlineBookingSystem.model.enums.*;
 import OnlineBookingSystem.OnlineBookingSystem.model.enums.Currency;
-import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentMethod;
-import OnlineBookingSystem.OnlineBookingSystem.model.enums.PaymentStatus;
+import OnlineBookingSystem.OnlineBookingSystem.repositories.BookingRepository;
 import OnlineBookingSystem.OnlineBookingSystem.repositories.PaymentRepository;
 import OnlineBookingSystem.OnlineBookingSystem.service.PaymentService;
+import OnlineBookingSystem.OnlineBookingSystem.service.SeatService;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,21 +30,26 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PayPalServiceImpl implements PayPalService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+
+    private final PaymentRepository paymentRepository;
+    private final BookingRepository bookingRepository;
+    private final SeatService seatService;
+
+
 
     @Autowired
     private APIContext apiContext;
 
-    private final String cancelUrl = "http://localhost:8080/api/payments/pay/cancel";
-    private final String successUrl = "http://localhost:8080/api/payments/pay/success";
+    private final String cancelUrl = "http://localhost:8080/api/paypal/pay/cancel";
+    private final String successUrl = "http://localhost:8080/api/paypal/pay/success";
 
 
 
     public String processPaypalPayment(Double totalFare, User user, Booking booking) {
-        String approvalUrl;
+        String approvalUrl = null;
         try {
             // Prepare the payment request
             PaymentRequest paymentRequest = new PaymentRequest();
@@ -57,7 +68,7 @@ public class PayPalServiceImpl implements PayPalService {
                     .filter(link -> "approval_url".equals(link.getRel()))
                     .findFirst()
                     .map(com.paypal.api.payments.Links::getHref)
-                    .orElseThrow(() -> new RuntimeException("Approval URL not found in the payment response."));
+                    .orElseThrow(() -> new ApprovalUrlNotFoundException("Approval URL not found in the payment response."));
             String transactionReference = payment.getId();
             booking.setBookingStatus(BookingStatus.PENDING);
 
@@ -71,14 +82,13 @@ public class PayPalServiceImpl implements PayPalService {
                     .booking(booking)
                     .build();
             booking.setBookingPayment(bookingPayment);
-//           paymentService.savePaymentInfo(bookingPayment);
            paymentRepository.save(bookingPayment);
         } catch (PayPalRESTException e) {
-            throw new RuntimeException("Payment failed: " + e.getMessage());
+            log.info("Payment failed: " + e.getMessage());
         }
 
         if (approvalUrl == null) {
-            throw new RuntimeException("Approval URL not found. Payment creation might have failed.");
+            throw new ApprovalUrlNotFoundException("Approval URL not found. Payment creation might have failed.");
         }
 
         return approvalUrl;
@@ -121,13 +131,25 @@ public class PayPalServiceImpl implements PayPalService {
 
         if ("approved".equalsIgnoreCase(executedPayment.getState())) {
             BookingPayment bookingPayment = paymentRepository.findBytransactionReference(executedPayment.getId());
+
             if (bookingPayment !=null ) {
                 bookingPayment.setPaymentStatus(PaymentStatus.COMPLETED);
                 bookingPayment.setSuccessUrl(successUrl);
                 bookingPayment.setPaymentMethod(PaymentMethod.paypal);
                 bookingPayment.setPaymentDate(LocalDateTime.now());
-//                paymentService.savePaymentInfo(bookingPayment);
                 paymentRepository.save(bookingPayment);
+
+
+                Booking booking = bookingPayment.getBooking();
+                booking.setBookingStatus(BookingStatus.BOOKED);
+                bookingRepository.save(booking);
+
+                // Book the seat
+                Seat bookedSeat = seatService.bookSeat(booking.getTrainClass().getClassName(), booking.getSeatNumber());
+                bookedSeat.setStatus(SeatStatus.BOOKED);
+                seatService.updateSeat(bookedSeat);
+
+
                 log.info("Payment status updated to COMPLETED.");
             }
         } else {
@@ -137,4 +159,5 @@ public class PayPalServiceImpl implements PayPalService {
 
         return executedPayment;
     }
+
 }

@@ -50,6 +50,12 @@
 <!--			<artifactId>spring-boot-starter-logging</artifactId>-->
 <!--		</dependency>-->
 
+		<!-- For Maven -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
 
 
 

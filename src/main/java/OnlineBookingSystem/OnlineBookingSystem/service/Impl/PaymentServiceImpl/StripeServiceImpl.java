@@ -54,7 +54,6 @@ public class StripeServiceImpl implements StripeService {
         try {
             Stripe.apiKey = stripeApiKey;
 
-            // Create a PaymentIntent
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount((long) (totalFare * 100))
                     .setCurrency("usd")
@@ -70,7 +69,7 @@ public class StripeServiceImpl implements StripeService {
                     .booking(booking.get())
                     .user(user.get())
                     .totalPrice(totalFare)
-                    .transactionReference(intent.getId())  // Deprecated, use getLatestCharge() instead
+                    .transactionReference(intent.getId())
                     .successUrl(intent.getClientSecret())
                     .build();
 
@@ -89,20 +88,21 @@ public class StripeServiceImpl implements StripeService {
         PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
         if ("succeeded".equals(paymentIntent.getStatus())) {
             Optional<BookingPayment> optionalPayment = Optional.ofNullable(paymentRepository.findBytransactionReference(paymentIntentId));
+
             if (optionalPayment.isPresent()) {
                 BookingPayment bookingPayment = optionalPayment.get();
-                bookingPayment.setPaymentStatus(PaymentStatus.COMPLETED); // Change payment status to COMPLETED
+                bookingPayment.setPaymentStatus(PaymentStatus.COMPLETED);
                 bookingPayment.setPaymentDate(LocalDateTime.now());
                 paymentRepository.save(bookingPayment);
 
-                // Update booking status
+
                 Booking booking = bookingPayment.getBooking();
-                booking.setBookingStatus(BookingStatus.BOOKED); // Change booking status to BOOKED
+                booking.setBookingStatus(BookingStatus.BOOKED);
                 bookingRepository.save(booking);
 
                 // Book the seat
                 Seat bookedSeat = seatService.bookSeat(booking.getTrainClass().getClassName(), booking.getSeatNumber());
-                bookedSeat.setStatus(SeatStatus.BOOKED); // Change seat status to BOOKED
+                bookedSeat.setStatus(SeatStatus.BOOKED);
                 seatService.updateSeat(bookedSeat);
             }
         }

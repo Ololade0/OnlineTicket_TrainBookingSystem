@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Online Booking System</title>
+  <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        nav {
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            nav a {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+  <h1>Welcome to the Online Booking System</h1>
+</header>
+
+<nav>
+  <a href="/api/paypal/pay">Pay with PayPal</a>
+  <a href="/api/paystack/pay">Pay with Paystack</a>
+  <a href="/api/stripe/pay">Pay with Stripe</a>
+</nav>
+
+<main>
+  <h2>Your One-Stop Solution for Booking</h2>
+  <p>Book your tickets easily and securely.</p>
+</main>
+
+<footer>
+  <p>&copy; 2025 Online Booking System</p>
+</footer>
+
+</body>
+</html>
