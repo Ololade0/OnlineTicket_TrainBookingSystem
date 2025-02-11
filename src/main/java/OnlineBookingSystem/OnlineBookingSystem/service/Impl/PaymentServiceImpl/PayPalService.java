@@ -9,4 +9,5 @@ public interface PayPalService {
     String processPaypalPayment(Double totalFare, User user, Booking booking);
 
     Payment executePaypalPayment(String paymentId, String payerId) throws PayPalRESTException;
+    String handleCancelledPayment(String transactionReference);
 }

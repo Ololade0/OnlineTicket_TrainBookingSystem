@@ -1,16 +1,20 @@
 package OnlineBookingSystem.OnlineBookingSystem.controller.PaymentControllers;
 
+import OnlineBookingSystem.OnlineBookingSystem.exceptions.PaymentProcessingException;
 import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.PayPalService;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/api/paypal")
+@Slf4j
 public class PayPalController {
 
     @Autowired
@@ -59,15 +63,23 @@ public class PayPalController {
                 "</html>";
     }
     @GetMapping("/pay/cancel")
-    public ResponseEntity<String> cancelPaymentTransaction() {
-        String responseHtml = generateCancelResponse();
-        return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_HTML)
-                .body(responseHtml);
+    public ResponseEntity<String> cancelPaypalPayment(@RequestParam("transactionReference") String transactionReference) {
+        try {
+            payPalService.handleCancelledPayment(transactionReference);
+            return ResponseEntity.ok(generateCancelResponse());
+        } catch (PaymentProcessingException e) {
+            log.error("Error processing cancellation: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("<html><body><h1>Cancellation Failed</h1>" +
+                            "<p>There was an error processing your cancellation. Please try again later.</p>" +
+                            "<a href=\"/\">Return to Home</a></body></html>");
+        }
     }
 
+
+
     @GetMapping("/pay/success")
-    public ResponseEntity<String> successPayForPayPal(@RequestParam("paymentId") String paymentId,
+    public ResponseEntity<?> successPayForPayPal(@RequestParam("paymentId") String paymentId,
                                                       @RequestParam("PayerID") String payerId) {
         try {
             // Execute the payment
