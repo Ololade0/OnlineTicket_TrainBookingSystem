@@ -100,7 +100,6 @@ public class StripeServiceImpl implements StripeService {
                 booking.setBookingStatus(BookingStatus.BOOKED);
                 bookingRepository.save(booking);
 
-                // Book the seat
                 Seat bookedSeat = seatService.bookSeat(booking.getTrainClass().getClassName(), booking.getSeatNumber());
                 bookedSeat.setStatus(SeatStatus.BOOKED);
                 seatService.updateSeat(bookedSeat);
