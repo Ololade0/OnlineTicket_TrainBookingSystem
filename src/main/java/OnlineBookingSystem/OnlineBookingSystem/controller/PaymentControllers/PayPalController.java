@@ -2,6 +2,7 @@ package OnlineBookingSystem.OnlineBookingSystem.controller.PaymentControllers;
 
 import OnlineBookingSystem.OnlineBookingSystem.exceptions.PaymentProcessingException;
 import OnlineBookingSystem.OnlineBookingSystem.service.Impl.PaymentServiceImpl.PayPalService;
+import com.paypal.api.payments.Event;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +83,6 @@ public class PayPalController {
     public ResponseEntity<?> successPayForPayPal(@RequestParam("paymentId") String paymentId,
                                                       @RequestParam("PayerID") String payerId) {
         try {
-            // Execute the payment
             Payment payment = payPalService.executePaypalPayment(paymentId, payerId);
             System.out.println(payment.toJSON());
 
@@ -116,4 +116,16 @@ public class PayPalController {
                 "<p>Payment ID: " + paymentId + "</p>" +
                 "<p>Payer ID: " + payerId + "</p></body></html>";
     }
+
+//    @PostMapping
+//    public ResponseEntity<String> handleWebhook(@RequestBody Event event) {
+//        try {
+//            // Handle the webhook event
+//            payPalService.handleWebhookEvent(event);
+//            return ResponseEntity.ok("Webhook event handled successfully");
+//        } catch (Exception e) {
+//            log.error("Error handling webhook event: {}", e.getMessage());
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error handling webhook event");
+//        }
+//    }
 }
